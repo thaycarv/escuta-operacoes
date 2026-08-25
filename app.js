@@ -109,6 +109,15 @@ function metric(label,value,note,tone='') { return `<article class="metric"><div
 
 // ==================== VISÕES VERSÃO 2.0 ====================
 
+const candidateScenarios = [
+  { id: 'ESC-008', title: 'Caso Ana: Alergia e Segurança Alimentar', tone: 'critical', emoji: '🔴' },
+  { id: 'ESC-001', title: 'Caso Marina: Atraso por Sobrecarga (43 min na cozinha)', tone: 'warning', emoji: '🟡' },
+  { id: 'ESC-003', title: 'Caso Júlia: Incidente de Atraso Crítico', tone: 'critical', emoji: '🔴' },
+  { id: 'ESC-004', title: 'Caso Bruno: Cancelamento por Demora', tone: 'warning', emoji: '🟡' },
+  { id: 'ESC-007', title: 'Caso Paulo: Cobrança Duplicada', tone: 'critical', emoji: '🔴' },
+  { id: 'ESC-006', title: 'Caso Renata: Atraso na Entrega', tone: 'warning', emoji: '🟡' }
+];
+
 function feedbacksV2() {
   const m = calculateMetrics(state.cases);
   const channels = ['Todos', ...new Set(state.cases.map(x=>x.channel))];
@@ -116,20 +125,25 @@ function feedbacksV2() {
   const statuses = ['Todos', ...new Set(state.cases.map(x=>x.status))];
   const items = state.cases.filter(x=>(filters.channel==='Todos'||x.channel===filters.channel)&&(filters.severity==='Todas'||x.severity===filters.severity)&&(filters.status==='Todos'||x.status===filters.status));
 
+  // Filtra apenas cenários em aberto (que ainda NÃO foram resolvidos)
+  const activeScenarios = candidateScenarios.filter(s => {
+    const c = state.cases.find(x => x.id === s.id);
+    return c && c.status !== 'Resolvido' && !c.resolvedConfirmed;
+  }).slice(0, 3);
+
   const content = `
-    <!-- Cenários de Demonstração Rápida -->
+    <!-- Cenários de Demonstração Rápida Dinâmicos -->
     <div class="quick-scenarios-bar">
-      <span class="scenario-title">Cenários Operacionais em Destaque:</span>
+      <span class="scenario-title">Cenários Operacionais em Aberto:</span>
       <div class="scenario-pills">
-        <button class="scenario-pill scenario-pill--critical" data-open-case="ESC-008">
-          🔴 Caso Ana: Alergia e Segurança Alimentar
-        </button>
-        <button class="scenario-pill scenario-pill--warning" data-open-case="ESC-001">
-          🟡 Caso Marina: Atraso por Sobrecarga (43 min na cozinha)
-        </button>
-        <button class="scenario-pill scenario-pill--success" data-open-case="ESC-005">
-          🟢 Caso Carlos: Item Ausente com Solução Confirmada
-        </button>
+        ${activeScenarios.length > 0 
+          ? activeScenarios.map(s => `
+              <button class="scenario-pill scenario-pill--${s.tone}" data-open-case="${s.id}">
+                ${s.emoji} ${s.title}
+              </button>
+            `).join('')
+          : '<span class="scenario-resolved-msg">✓ Todos os principais casos operacionais em destaque foram solucionados!</span>'
+        }
       </div>
     </div>
 
