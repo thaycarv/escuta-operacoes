@@ -3,7 +3,7 @@ import { cloneInitialState, calculateMetrics, themeCounts, canValidateAI, canVer
 const app = document.getElementById('app');
 const modalRoot = document.getElementById('modal-root');
 const toastEl = document.getElementById('toast');
-const storageKey = 'escuta-demo-v1';
+const storageKey = 'escuta-demo-v2';
 
 let state = loadState();
 let currentView = 'dashboard';
@@ -40,12 +40,12 @@ function badge(text, tone='') { return `<span class="badge ${tone}">${escapeHtml
 function severityTone(value) { return value==='Crítica'?'red':value==='Alta'?'amber':value==='Informativa'?'green':'violet'; }
 function statusTone(value) { return value==='Resolvido'?'green':value==='Novo'?'red':value==='Aguardando ação interna'?'amber':'violet'; }
 
-function shell(content, title, kicker='Pizza House · cenário demonstrativo') {
+function shell(content, title, kicker='Pizza House: cenário demonstrativo') {
   return `<div class="app-shell">
     <aside class="sidebar" id="sidebar">
       <div class="brand"><span class="brand-mark">E</span><span><strong>Escuta</strong><small>Voz do Cliente</small></span><button class="btn btn-small mobile-menu" data-action="menu">Menu</button></div>
       <nav class="nav">${views.map(([id,icon,label])=>`<button class="nav-button ${currentView===id?'active':''}" data-view="${id}"><span class="nav-icon">${icon}</span>${label}</button>`).join('')}</nav>
-      <div class="side-footer"><div class="demo-label">Dados simulados · IA como apoio</div><button class="btn btn-ghost btn-small" data-action="reset">Restaurar demonstração</button></div>
+      <div class="side-footer"><div class="demo-label">Dados simulados: apoio analítico</div><button class="btn btn-ghost btn-small" data-action="reset">Restaurar demonstração</button></div>
     </aside>
     <main class="main">
       <header class="topbar"><div><div class="page-kicker">${kicker}</div><h1>${title}</h1></div><div class="top-actions"><button class="btn" data-action="guide">${state.guideActive?'Sair do roteiro':'Iniciar roteiro'}</button><button class="btn btn-primary" data-action="new-feedback">+ Novo feedback</button></div></header>
@@ -67,12 +67,12 @@ function dashboard() {
   const content=`
     <section class="grid metrics">
       ${metric('CSAT médio',m.csat.toFixed(1),'+0,6 no cenário pós-ação','positive')}
-      ${metric('NPS demonstrativo',m.nps,m.npsResponses+' respostas · amostra reduzida',m.nps<0?'danger':'')}
+      ${metric('NPS demonstrativo',m.nps,m.npsResponses+' respostas: amostra reduzida',m.nps<0?'danger':'')}
       ${metric('Resolução confirmada',m.resolvedRate+'%','Encerrados sem confirmação não contam')}
       ${metric('Casos em acompanhamento',m.open,'1 exige intervenção imediata','warning')}
     </section>
     <section class="grid two-col">
-      <article class="panel"><div class="panel-head"><div><h3>Satisfação × contatos sobre atraso</h3><p>Comparação demonstrativa dos últimos 7 períodos</p></div>${badge('Correlação, não causalidade','violet')}</div>
+      <article class="panel"><div class="panel-head"><div><h3>Satisfação versus contatos sobre atraso</h3><p>Comparação demonstrativa dos últimos 7 períodos</p></div>${badge('Correlação, não causalidade','violet')}</div>
         <div class="chart">${[54,48,58,63,71,82,67].map((v,i)=>`<div class="chart-col"><div class="bar" style="height:${v}%"></div><div class="bar alt" style="height:${[34,39,31,49,66,79,58][i]}%"></div></div>`).join('')}</div>
         <div class="chart-labels">${['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'].map(x=>`<span>${x}</span>`).join('')}</div>
       </article>
@@ -98,7 +98,7 @@ function survey() {
       <div class="full action-row"><button class="btn btn-primary" type="submit">Enviar avaliação</button><span class="metric-note">Sua linguagem original será preservada.</span></div>
     </form>
   </article></section>`;
-  return shell(content,'Avaliação do cliente','Experiência simples · classificação acontece internamente');
+  return shell(content,'Avaliação do cliente','Experiência simples: classificação acontece internamente');
 }
 
 function feedbacks() {
@@ -106,11 +106,11 @@ function feedbacks() {
   const severities=['Todas','Crítica','Alta','Moderada','Baixa','Informativa'];
   const statuses=['Todos',...new Set(state.cases.map(x=>x.status))];
   const items=state.cases.filter(x=>(filters.channel==='Todos'||x.channel===filters.channel)&&(filters.severity==='Todas'||x.severity===filters.severity)&&(filters.status==='Todos'||x.status===filters.status));
-  const content=`<section class="panel"><div class="panel-head"><div><h3>Central multicanal</h3><p>${items.length} de ${state.cases.length} registros · duplicidades vinculadas permanecem visíveis</p></div><div class="filter-row">
+  const content=`<section class="panel"><div class="panel-head"><div><h3>Central multicanal</h3><p>${items.length} de ${state.cases.length} registros (duplicidades vinculadas permanecem visíveis)</p></div><div class="filter-row">
     <select class="select" data-filter="channel">${channels.map(v=>`<option ${filters.channel===v?'selected':''}>${v}</option>`).join('')}</select>
     <select class="select" data-filter="severity">${severities.map(v=>`<option ${filters.severity===v?'selected':''}>${v}</option>`).join('')}</select>
     <select class="select" data-filter="status">${statuses.map(v=>`<option ${filters.status===v?'selected':''}>${v}</option>`).join('')}</select></div></div>
-    <div class="table-wrap"><table><thead><tr><th>Caso</th><th>Canal</th><th>Relato original</th><th>Tema</th><th>Gravidade</th><th>Status</th></tr></thead><tbody>${items.map(item=>`<tr class="clickable" data-case="${item.id}"><td><strong>${item.id}</strong><br><span class="metric-note">${item.order} · ${item.time}</span></td><td>${item.channel}</td><td class="quote">${escapeHtml(item.text||'Sem comentário — contexto solicitado')}</td><td>${escapeHtml(item.theme)}</td><td>${badge(item.severity,severityTone(item.severity))}</td><td>${badge(item.status,statusTone(item.status))}</td></tr>`).join('')}</tbody></table></div>
+    <div class="table-wrap"><table><thead><tr><th>Caso</th><th>Canal</th><th>Relato original</th><th>Tema</th><th>Gravidade</th><th>Status</th></tr></thead><tbody>${items.map(item=>`<tr class="clickable" data-case="${item.id}"><td><strong>${item.id}</strong><br><span class="metric-note">${item.order} · ${item.time}</span></td><td>${item.channel}</td><td class="quote">${escapeHtml(item.text||'Sem comentário: contexto solicitado')}</td><td>${escapeHtml(item.theme)}</td><td>${badge(item.severity,severityTone(item.severity))}</td><td>${badge(item.status,statusTone(item.status))}</td></tr>`).join('')}</tbody></table></div>
   </section>`;
   return shell(content,'Central de feedbacks');
 }
@@ -119,15 +119,18 @@ function caseDetail() {
   const item=state.cases.find(x=>x.id===state.selectedCase)||state.cases[0];
   const total=Object.values(item.operational).slice(0,4).reduce((a,b)=>a+b,0);
   const canValidate=canValidateAI(item);
-  const content=`<div class="action-row" style="margin-bottom:14px"><button class="btn" data-view="feedbacks">← Voltar aos feedbacks</button>${badge(item.id,'violet')}${badge(item.severity,severityTone(item.severity))}${item.critical?badge('Intervenção humana','red'):''}</div>
+  const content=`<div class="action-row" style="margin-bottom:14px;justify-content:space-between;">
+    <div class="action-row"><button class="btn" data-view="feedbacks">← Voltar aos feedbacks</button>${badge(item.id,'violet')}${badge(item.severity,severityTone(item.severity))}${item.critical?badge('Intervenção humana','red'):''}</div>
+    <button class="btn btn-secondary" data-action="copy-case-report">📋 Copiar Parecer do Caso</button>
+  </div>
   <section class="grid case-layout"><div class="grid">
     <article class="panel"><div class="panel-head"><div><h3>Relato preservado</h3><p>${item.customer} · ${item.channel} · pedido ${item.order}</p></div><span class="metric-value">${item.rating}/5</span></div><p class="quote">“${escapeHtml(item.text||'Nota recebida sem comentário.')}”</p></article>
-    <article class="panel"><div class="panel-head"><div><h3>Leitura operacional</h3><p>${total} min entre confirmação e fim do trajeto · ${item.operational.concurrent} pedidos simultâneos</p></div>${badge('Dados do pedido')}</div>
+    <article class="panel"><div class="panel-head"><div><h3>Leitura operacional</h3><p>${total} min entre confirmação e fim do trajeto (${item.operational.concurrent} pedidos simultâneos)</p></div>${badge('Dados do pedido')}</div>
       <div class="evidence-grid grid">${[['Confirmação',item.operational.confirmation],['Produção',item.operational.production],['Espera entregador',item.operational.courierWait],['Trajeto',item.operational.route]].map(([k,v])=>`<div class="evidence"><span class="metric-label">${k}</span><strong>${v} min</strong></div>`).join('')}</div>
     </article>
     <article class="panel"><div class="panel-head"><div><h3>Histórico do caso</h3><p>Registro auditável das ações</p></div></div><div class="timeline">${item.history.map(h=>`<div class="timeline-item"><span class="timeline-dot"></span><div>${escapeHtml(h)}</div></div>`).join('')}</div></article>
   </div><aside class="grid">
-    <article class="ai-box"><div class="panel-head"><div><h3>Apoio interpretativo</h3><p>Sugestão editável</p></div>${badge(item.aiStatus==='validated'?'Validada':item.aiStatus==='corrected'?'Corrigida':'Pendente',item.aiStatus==='validated'?'green':'violet')}</div>
+    <article class="ai-box"><div class="panel-head"><div><h3>Apoio analítico</h3><p>Sugestão editável</p></div>${badge(item.aiStatus==='validated'?'Validada':item.aiStatus==='corrected'?'Corrigida':'Pendente',item.aiStatus==='validated'?'green':'violet')}</div>
       <p><strong>Tema provável:</strong> ${escapeHtml(item.theme)}<br><strong>Gravidade sugerida:</strong> ${item.severity}<br><strong>Evidência:</strong> relato e tempos operacionais vinculados ao pedido.</p>
       <div class="confidence"><span>Confiança</span><span>${item.aiConfidence}%</span></div><div class="confidence-track"><div class="confidence-fill" style="width:${item.aiConfidence}%"></div></div>
       ${!canValidate?'<p class="danger">Informações insuficientes. A validação exige revisão do contexto.</p>':''}
@@ -144,10 +147,10 @@ function caseDetail() {
 
 function patterns() {
   const counts=themeCounts(state.cases); const max=Math.max(...counts.map(x=>x[1]));
-  const content=`<section class="grid two-col"><article class="panel"><div class="panel-head"><div><h3>Temas recorrentes</h3><p>Registros únicos · últimos 7 dias</p></div>${badge('Taxa + volume','violet')}</div><div class="bars">${counts.map(([theme,count])=>`<div><div class="hbar-head"><span>${escapeHtml(theme)}</span><strong>${count}</strong></div><div class="hbar-track"><div class="hbar-fill" style="width:${count/max*100}%"></div></div></div>`).join('')}</div></article>
-    <aside class="panel"><div class="panel-head"><div><h3>Hipótese em análise</h3><p>Prazo informado × capacidade</p></div>${badge('Confiança 82%','violet')}</div><div class="pattern-card"><strong>Indício, não diagnóstico</strong><p>5 casos se concentram em períodos acima de 25 pedidos simultâneos. A produção representa parcela maior do tempo total do que o trajeto.</p></div><button class="btn btn-primary" data-action="open-related">Abrir casos relacionados</button></aside></section>
+  const content=`<section class="grid two-col"><article class="panel"><div class="panel-head"><div><h3>Temas recorrentes</h3><p>Registros únicos (últimos 7 dias)</p></div>${badge('Taxa e volume','violet')}</div><div class="bars">${counts.map(([theme,count])=>`<div><div class="hbar-head"><span>${escapeHtml(theme)}</span><strong>${count}</strong></div><div class="hbar-track"><div class="hbar-fill" style="width:${count/max*100}%"></div></div></div>`).join('')}</div></article>
+    <aside class="panel"><div class="panel-head"><div><h3>Hipótese em análise</h3><p>Prazo informado versus capacidade</p></div>${badge('Confiança 82%','violet')}</div><div class="pattern-card"><strong>Indício, não diagnóstico</strong><p>5 casos se concentram em períodos com mais de 25 pedidos simultâneos. A produção representa parcela maior do tempo total do que o trajeto.</p></div><button class="btn btn-primary" data-action="open-related">Abrir casos relacionados</button></aside></section>
     <section class="panel" style="margin-top:14px"><div class="panel-head"><div><h3>Evidências confrontadas</h3><p>O sistema exibe também o que contradiz a hipótese</p></div></div><div class="evidence-grid grid">
-      <div class="evidence"><span class="metric-label">Pedidos simultâneos</span><strong>31–36</strong><span class="metric-note">nos principais casos</span></div>
+      <div class="evidence"><span class="metric-label">Pedidos simultâneos</span><strong>31 a 36</strong><span class="metric-note">nos principais casos</span></div>
       <div class="evidence"><span class="metric-label">Produção média</span><strong>45 min</strong><span class="metric-note">principal parcela observada</span></div>
       <div class="evidence"><span class="metric-label">Caso divergente</span><strong>1</strong><span class="metric-note">atraso sem saturação</span></div>
     </div></section>`;
@@ -157,15 +160,15 @@ function patterns() {
 function actionsView() {
   const statuses=['Planejada','Em andamento','Verificação','Concluída'];
   const content=`<section class="grid kanban">${statuses.map(status=>`<div class="kanban-col"><div class="kanban-title"><span>${status}</span><strong>${state.actions.filter(a=>a.status===status).length}</strong></div>${state.actions.filter(a=>a.status===status).map(a=>`<article class="action-card"><strong>${escapeHtml(a.title)}</strong><p>${escapeHtml(a.problem)}</p><div class="metric-note">${a.owner} · até ${a.due}</div><div class="action-row" style="margin-top:10px">${badge(a.experience,'violet')}${badge(a.operational)}</div>${status==='Verificação'?`<button class="btn btn-small btn-primary" style="margin-top:10px" data-verify="${a.id}" ${canVerifyAction(a)?'':'disabled'}>Validar resultado</button>`:''}</article>`).join('')}</div>`).join('')}</section>
-    <section class="panel" style="margin-top:14px"><div class="panel-head"><div><h3>Critério de validação</h3><p>Nenhuma melhoria é confirmada apenas por percepção.</p></div>${badge('Experiência + operação','green')}</div><p class="metric-note">Cada ação combina um indicador de experiência do cliente e um indicador operacional. Períodos precisam ser comparáveis e fatores externos permanecem visíveis.</p></section>`;
+    <section class="panel" style="margin-top:14px"><div class="panel-head"><div><h3>Critério de validação</h3><p>Nenhuma melhoria é confirmada apenas por percepção.</p></div>${badge('Experiência e operação','green')}</div><p class="metric-note">Cada ação combina um indicador de experiência do cliente e um indicador operacional. Períodos precisam ser comparáveis e fatores externos permanecem visíveis.</p></section>`;
   return shell(content,'Planos de melhoria');
 }
 
 function indicators() {
   const m=calculateMetrics(state.cases);
-  const content=`<section class="grid metrics">${metric('CSAT',m.csat.toFixed(1)+'/5','11 avaliações válidas','positive')}${metric('NPS',m.nps,m.npsResponses+' respostas · participação visível',m.nps<0?'danger':'')}${metric('Primeira resposta',m.avgResponse+' min','Média dos registros com resposta')}${metric('Resolução confirmada',m.resolvedRate+'%','Sem confirmação permanece separado')}</section>
-  <section class="grid two-col"><article class="panel"><div class="panel-head"><div><h3>Antes e depois da melhoria</h3><p>Períodos equivalentes · dados simulados</p></div>${badge('Não comprova causalidade','violet')}</div><div class="table-wrap"><table style="min-width:560px"><thead><tr><th>Indicador</th><th>Antes</th><th>Depois</th><th>Leitura</th></tr></thead><tbody>
-    <tr><td>CSAT</td><td>3,2</td><td>3,8</td><td class="positive">Melhora observada</td></tr><tr><td>Contatos por atraso / 100 pedidos</td><td>18</td><td>10</td><td class="positive">Redução observada</td></tr><tr><td>Tempo confirmação–entrega</td><td>76 min</td><td>68 min</td><td class="positive">Redução parcial</td></tr><tr><td>Taxa de resposta da pesquisa</td><td>22%</td><td>25%</td><td>Amostra ainda limitada</td></tr>
+  const content=`<section class="grid metrics">${metric('CSAT',m.csat.toFixed(1)+'/5','11 avaliações válidas','positive')}${metric('NPS',m.nps,m.npsResponses+' respostas: participação visível',m.nps<0?'danger':'')}${metric('Primeira resposta',m.avgResponse+' min','Média dos registros com resposta')}${metric('Resolução confirmada',m.resolvedRate+'%','Sem confirmação permanece separado')}</section>
+  <section class="grid two-col"><article class="panel"><div class="panel-head"><div><h3>Antes e depois da melhoria</h3><p>Períodos equivalentes: dados simulados</p></div>${badge('Não comprova causalidade','violet')}</div><div class="table-wrap"><table style="min-width:560px"><thead><tr><th>Indicador</th><th>Antes</th><th>Depois</th><th>Leitura</th></tr></thead><tbody>
+    <tr><td>CSAT</td><td>3,2</td><td>3,8</td><td class="positive">Melhora observada</td></tr><tr><td>Contatos por atraso / 100 pedidos</td><td>18</td><td>10</td><td class="positive">Redução observada</td></tr><tr><td>Tempo de confirmação e entrega</td><td>76 min</td><td>68 min</td><td class="positive">Redução parcial</td></tr><tr><td>Taxa de resposta da pesquisa</td><td>22%</td><td>25%</td><td>Amostra ainda limitada</td></tr>
   </tbody></table></div></article><aside class="panel"><div class="panel-head"><div><h3>Leitura responsável</h3><p>Interpretação do cenário</p></div></div><div class="pattern-card"><strong>Resultado promissor</strong><p>Satisfação e contatos melhoraram, enquanto o tempo operacional caiu parcialmente.</p></div><div class="pattern-card"><strong>Limite da evidência</strong><p>A amostra é pequena e o período não isola fatores externos. A ação permanece em verificação.</p></div></aside></section>`;
   return shell(content,'Indicadores e resultados');
 }
@@ -178,6 +181,36 @@ function render() {
 
 function go(view) { currentView=view; window.scrollTo({top:0,behavior:'smooth'}); render(); }
 
+function copyCaseReport() {
+  const item = activeCase();
+  if(!item) return;
+  const total = Object.values(item.operational).slice(0,4).reduce((a,b)=>a+b,0);
+  const text = `*Parecer de Voz do Cliente: Caso ${item.id}*
+Cliente: ${item.customer} | Canal: ${item.channel} | Pedido: ${item.order}
+Horário: ${item.time} | Avaliação: ${item.rating || 'N/A'}/5
+
+*1. Relato Preservado:*
+"${item.text || 'Sem comentário registrado'}"
+
+*2. Dados Operacionais:*
+- Tempo Total: ${total} min
+- Confirmação: ${item.operational.confirmation} min | Produção: ${item.operational.production} min
+- Espera Entregador: ${item.operational.courierWait} min | Trajeto: ${item.operational.route} min
+- Pedidos Simultâneos: ${item.operational.concurrent}
+
+*3. Apoio Analítico:*
+- Tema Provável: ${item.theme}
+- Gravidade Sugerida: ${item.severity} (Confiança: ${item.aiConfidence}%)
+- Status de Validação: ${item.aiStatus}
+
+*4. Tratamento Humano:*
+- Status Atual: ${item.status}
+- Resolução Confirmada pelo Cliente: ${item.resolvedConfirmed ? 'Sim' : 'Pendente'}
+`;
+  navigator.clipboard.writeText(text);
+  toast(`Parecer do caso ${item.id} copiado para a área de transferência.`);
+}
+
 function bindEvents() {
   document.querySelectorAll('[data-view]').forEach(el=>el.addEventListener('click',()=>go(el.dataset.view)));
   document.querySelector('[data-action="menu"]')?.addEventListener('click',()=>document.getElementById('sidebar').classList.toggle('mobile-open'));
@@ -186,6 +219,7 @@ function bindEvents() {
   document.querySelector('[data-action="guide-next"]')?.addEventListener('click',()=>{if(state.guideStep===guideSteps.length-1){state.guideActive=false;state.guideStep=0;toast('Roteiro concluído. A exploração livre continua disponível.');}else{state.guideStep++;currentView=guideSteps[state.guideStep].view;}saveState();render();});
   document.querySelector('[data-action="reset"]')?.addEventListener('click',showResetModal);
   document.querySelector('[data-action="new-feedback"]')?.addEventListener('click',showNewFeedbackModal);
+  document.querySelector('[data-action="copy-case-report"]')?.addEventListener('click',copyCaseReport);
   document.querySelectorAll('[data-filter]').forEach(el=>el.addEventListener('change',()=>{filters[el.dataset.filter]=el.value;render();}));
   document.querySelectorAll('[data-case]').forEach(el=>el.addEventListener('click',()=>{state.selectedCase=el.dataset.case;saveState();go('case');}));
   document.querySelectorAll('[data-rating]').forEach(el=>el.addEventListener('click',()=>{surveyRating=Number(el.dataset.rating);document.querySelectorAll('[data-rating]').forEach(button=>button.classList.toggle('selected',button===el));}));
@@ -206,7 +240,7 @@ function submitSurvey(event) {
 }
 
 function activeCase(){return state.cases.find(x=>x.id===state.selectedCase);}
-function handleAI(action){const item=activeCase();if(!item)return;if(action==='validate'&&!canValidateAI(item)){toast('A validação exige mais contexto.');return;}item.aiStatus=action==='validate'?'validated':action==='correct'?'corrected':'rejected';item.history.push(action==='validate'?'Sugestão da IA validada por uma pessoa':action==='correct'?'Sugestão corrigida por uma pessoa':'Sugestão da IA não utilizada');saveState();toast('Decisão humana registrada no histórico.');render();}
+function handleAI(action){const item=activeCase();if(!item)return;if(action==='validate'&&!canValidateAI(item)){toast('A validação exige mais contexto.');return;}item.aiStatus=action==='validate'?'validated':action==='correct'?'corrected':'rejected';item.history.push(action==='validate'?'Sugestão validada por uma pessoa':action==='correct'?'Sugestão corrigida por uma pessoa':'Sugestão não utilizada');saveState();toast('Decisão humana registrada no histórico.');render();}
 function updateCaseField(field,value){const item=activeCase();item[field]=value;item.history.push(`${field==='status'?'Status':'Gravidade'} alterada para ${value}`);saveState();toast('Caso atualizado.');render();}
 function confirmResolution(){const item=activeCase();item.resolvedConfirmed=true;item.status='Resolvido';item.history.push('Cliente confirmou que a solução funcionou');saveState();toast('Resolução confirmada e indicador atualizado.');render();}
 function verifyAction(id){const action=state.actions.find(x=>x.id===id);if(!canVerifyAction(action)){toast('Inclua indicadores de experiência e operação.');return;}action.status='Concluída';toast('Resultado validado com os dois indicadores.');saveState();render();}
