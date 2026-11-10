@@ -8,7 +8,7 @@ import {
 const app = document.getElementById('app');
 const modalRoot = document.getElementById('modal-root');
 const toastEl = document.getElementById('toast');
-const storageKey = 'escuta_operacoes_state_v3';
+const storageKey = 'radarsocial_escuta_v4';
 
 let state = loadState();
 let currentView = 'cases'; // 'cases' | 'improvements'
@@ -62,7 +62,7 @@ const icons = {
   analytics: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>`,
   clock: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`,
   check: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`,
-  dollar: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>`,
+  shield: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>`,
   plus: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>`,
   user: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`,
   copy: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`
@@ -86,17 +86,17 @@ function renderShell(contentHtml, activeNav) {
     <div class="app-shell">
       <aside class="sidebar">
         <div class="brand">
-          <div class="brand-icon">E</div>
+          <div class="brand-icon">R</div>
           <div class="brand-text">
-            <h2>Escuta</h2>
-            <small>Gestão de Ocorrências &amp; VoC</small>
+            <h2>RadarSocial</h2>
+            <small>Escuta Ativa &amp; Ouvidoria</small>
           </div>
         </div>
 
         <nav class="nav">
           <button class="nav-item ${activeNav === 'cases' ? 'active' : ''}" data-nav="cases">
             ${icons.list}
-            <span>Central de Ocorrências</span>
+            <span>Fila de Manifestações</span>
           </button>
           <button class="nav-item ${activeNav === 'improvements' ? 'active' : ''}" data-nav="improvements">
             ${icons.analytics}
@@ -106,10 +106,10 @@ function renderShell(contentHtml, activeNav) {
 
         <div class="sidebar-footer">
           <div class="operation-badge">
-            <strong>Unidade 01 · Operação Centro</strong>
-            <span>Turno da Noite · Delivery Ativo</span>
+            <strong>Ecossistema RadarSocial</strong>
+            <span>Polos Territoriais &amp; Comunidades</span>
           </div>
-          <button class="btn-reset" data-action="reset-state">Restaurar Dados do Turno</button>
+          <button class="btn-reset" data-action="reset-state">Restaurar Dados</button>
         </div>
       </aside>
 
@@ -123,9 +123,8 @@ function renderShell(contentHtml, activeNav) {
 function renderCasesView() {
   const m = calculateMetrics(state.cases);
 
-  // Canais, setores e status para os filtros
-  const channels = ['Todos', 'WhatsApp', 'iFood', 'Saipos', 'Telefone'];
-  const sectors = ['Todos', 'Cozinha / Preparo', 'Expedição / Montagem', 'Logística / Entrega', 'Atendimento / Balcão'];
+  const channels = ['Todos', 'WhatsApp Comunitário', 'Reunião de Polo / Presencial', 'Ouvidoria Digital', 'Formulário de Aluno/Turma'];
+  const sectors = ['Todos', 'Infraestrutura & Redes', 'Coordenação Pedagógica', 'Qualidade & Nutrição', 'Planejamento & Operações', 'Parcerias & Empregabilidade'];
   const statuses = ['Todos', 'Aberto', 'Em tratamento', 'Resolvido'];
 
   const filteredCases = state.cases.filter(c => {
@@ -140,21 +139,21 @@ function renderCasesView() {
   const contentHtml = `
     <header class="topbar">
       <div class="topbar-header">
-        <div class="kicker">Rotina Operacional de Pós-Venda</div>
-        <h1>Central de Ocorrências do Turno</h1>
-        <p>Monitoramento e tratativa em tempo real de relatos de clientes integrados aos dados do processo produtivo.</p>
+        <div class="kicker">Governança Territorial &amp; Impacto Social</div>
+        <h1>Fila de Manifestações dos Polos</h1>
+        <p>Acolhimento contínuo de relatos de beneficiários e lideranças comunitárias integrado às metas dos projetos sociais.</p>
       </div>
       <button class="btn btn-primary" data-action="open-new-case-modal">
         ${icons.plus}
-        <span>+ Nova Ocorrência</span>
+        <span>+ Nova Manifestação</span>
       </button>
     </header>
 
-    <!-- Métricas do Turno -->
+    <!-- Métricas do Módulo -->
     <section class="metrics-grid">
       <article class="metric-card">
         <div class="metric-header">
-          <span class="metric-title">Ocorrências do Turno</span>
+          <span class="metric-title">Manifestações Registradas</span>
           <span class="metric-icon">${icons.list}</span>
         </div>
         <div class="metric-value">${m.total}</div>
@@ -163,11 +162,11 @@ function renderCasesView() {
 
       <article class="metric-card">
         <div class="metric-header">
-          <span class="metric-title">Tempo Médio 1º Contato</span>
+          <span class="metric-title">Tempo Médio de Acolhimento</span>
           <span class="metric-icon">${icons.clock}</span>
         </div>
-        <div class="metric-value">${m.avgSla} min</div>
-        <div class="metric-sub">SLA de atendimento (Meta: &lt; 10 min)</div>
+        <div class="metric-value">${m.avgSla}h</div>
+        <div class="metric-sub">SLA Comunitário (Meta: &lt; 4 horas)</div>
       </article>
 
       <article class="metric-card">
@@ -176,32 +175,32 @@ function renderCasesView() {
           <span class="metric-icon">${icons.check}</span>
         </div>
         <div class="metric-value">${m.resolvedRate}%</div>
-        <div class="metric-sub">${m.resolved} de ${m.total} chamados solucionados</div>
+        <div class="metric-sub">${m.resolved} de ${m.total} demandas atendidas</div>
       </article>
 
       <article class="metric-card">
         <div class="metric-header">
-          <span class="metric-title">Custo de Indenizações</span>
-          <span class="metric-icon">${icons.dollar}</span>
+          <span class="metric-title">Apoio &amp; Reparos Emergenciais</span>
+          <span class="metric-icon">${icons.shield}</span>
         </div>
         <div class="metric-value">${formatCurrency(m.totalCost)}</div>
-        <div class="metric-sub">Estornos via PIX, cartões e cupons emitidos</div>
+        <div class="metric-sub">Insumos e contingência nos polos</div>
       </article>
     </section>
 
-    <!-- Painel da Tabela de Ocorrências -->
+    <!-- Tabela de Ocorrências -->
     <section class="panel">
       <div class="panel-header">
         <div class="panel-title">
-          <h3>Fila de Chamados</h3>
-          <p>${filteredCases.length} ocorrências exibidas. Clique em qualquer linha para abrir a tratativa.</p>
+          <h3>Ocorrências &amp; Relatos Territoriais</h3>
+          <p>${filteredCases.length} registros exibidos. Clique em qualquer linha para abrir a tratativa.</p>
         </div>
         <div class="filter-bar">
           <select class="select-filter" data-filter="channel">
             ${channels.map(ch => `<option value="${ch}" ${filters.channel === ch ? 'selected' : ''}>Canal: ${ch}</option>`).join('')}
           </select>
           <select class="select-filter" data-filter="sector">
-            ${sectors.map(sec => `<option value="${sec}" ${filters.sector === sec ? 'selected' : ''}>Setor: ${sec}</option>`).join('')}
+            ${sectors.map(sec => `<option value="${sec}" ${filters.sector === sec ? 'selected' : ''}>Frente: ${sec}</option>`).join('')}
           </select>
           <select class="select-filter" data-filter="status">
             ${statuses.map(st => `<option value="${st}" ${filters.status === st ? 'selected' : ''}>Status: ${st}</option>`).join('')}
@@ -213,12 +212,12 @@ function renderCasesView() {
         <table>
           <thead>
             <tr>
-              <th>Código / Pedido</th>
-              <th>Cliente &amp; Canal</th>
-              <th>Relato Original do Cliente</th>
+              <th>Protocolo / Data</th>
+              <th>Beneficiário &amp; Polo</th>
+              <th>Iniciativa Vinculada</th>
+              <th>Relato da Comunidade</th>
               <th>Categoria</th>
-              <th>Setor Responsável</th>
-              <th>Indenização</th>
+              <th>Frente Responsável</th>
               <th>Status</th>
             </tr>
           </thead>
@@ -227,11 +226,14 @@ function renderCasesView() {
               <tr class="table-row-clickable ${selectedCase && selectedCase.id === item.id ? 'table-row-selected' : ''}" data-case-id="${item.id}">
                 <td>
                   <strong>${item.id}</strong><br>
-                  <span class="meta-label">${item.order} · ${item.time}</span>
+                  <span class="meta-label">${item.date} · ${item.time}</span>
                 </td>
                 <td>
-                  <strong>${escapeHtml(item.customer)}</strong><br>
-                  <span class="meta-label">${item.channel}</span>
+                  <strong>${escapeHtml(item.beneficiary)}</strong><br>
+                  <span class="meta-label">${escapeHtml(item.hub)} · ${item.channel}</span>
+                </td>
+                <td>
+                  <span class="badge badge-sector">${escapeHtml(item.projectName)}</span>
                 </td>
                 <td style="max-width: 320px;">
                   <span style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 0.83rem; color: #334155;">
@@ -243,11 +245,6 @@ function renderCasesView() {
                   ${item.severity === 'Crítica' ? '<br>' + severityBadge(item.severity) : ''}
                 </td>
                 <td><span class="badge badge-sector">${escapeHtml(item.sector)}</span></td>
-                <td>
-                  ${item.compensationCost > 0 
-                    ? `<strong style="color: var(--danger); font-size: 0.85rem;">${formatCurrency(item.compensationCost)}</strong>` 
-                    : '<span style="color: var(--text-subtle);">R$ 0,00</span>'}
-                </td>
                 <td>${statusBadge(item.status)}</td>
               </tr>
             `).join('')}
@@ -256,7 +253,7 @@ function renderCasesView() {
       </div>
     </section>
 
-    <!-- Detalhe da Ocorrência Selecionada (Tratativa do SAC & Engenharia de Operações) -->
+    <!-- Detalhe da Manifestação Selecionada -->
     ${selectedCase ? renderCaseDetailSection(selectedCase) : ''}
   `;
 
@@ -264,16 +261,14 @@ function renderCasesView() {
 }
 
 function renderCaseDetailSection(c) {
-  const isDelay = c.delayMinutes > 0;
-
   return `
     <div class="case-detail-container" id="case-detail-view">
       <div class="detail-grid">
         
-        <!-- Bloco 1: O que o cliente relatou -->
+        <!-- Bloco 1: O que a comunidade relatou -->
         <article class="detail-card">
           <div class="detail-card-header">
-            <h4>${icons.user} 1. Relato Original do Cliente</h4>
+            <h4>${icons.user} 1. Relato da Comunidade</h4>
             <span class="badge badge-sector">${c.channel}</span>
           </div>
 
@@ -283,29 +278,25 @@ function renderCaseDetailSection(c) {
 
           <div class="meta-list">
             <div class="meta-row">
-              <span class="meta-label">Cliente</span>
-              <span class="meta-val">${escapeHtml(c.customer)}</span>
+              <span class="meta-label">Beneficiário</span>
+              <span class="meta-val">${escapeHtml(c.beneficiary)}</span>
             </div>
             <div class="meta-row">
-              <span class="meta-label">Pedido / Horário</span>
-              <span class="meta-val">${c.order} às ${c.time}</span>
+              <span class="meta-label">Polo / Território</span>
+              <span class="meta-val">${escapeHtml(c.hub)}</span>
             </div>
             <div class="meta-row">
-              <span class="meta-label">Itens</span>
-              <span class="meta-val" style="text-align: right; max-width: 60%;">${escapeHtml(c.orderItems)}</span>
+              <span class="meta-label">Iniciativa</span>
+              <span class="meta-val" style="text-align: right; max-width: 60%;">${escapeHtml(c.projectName)}</span>
             </div>
             <div class="meta-row">
-              <span class="meta-label">Valor do Pedido</span>
-              <span class="meta-val">${formatCurrency(c.orderValue)}</span>
-            </div>
-            <div class="meta-row">
-              <span class="meta-label">Avaliação do Cliente</span>
-              <span class="meta-val">${c.rating ? '★'.repeat(c.rating) + '☆'.repeat(5 - c.rating) + ` (${c.rating}/5)` : 'Sem nota registrada'}</span>
+              <span class="meta-label">Data e Hora</span>
+              <span class="meta-val">${c.date} às ${c.time}</span>
             </div>
           </div>
 
           <div class="timeline">
-            <strong style="font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase;">Histórico do Atendimento</strong>
+            <strong style="font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase;">Histórico do Encaminhamento</strong>
             ${c.history.map(h => `
               <div class="timeline-item">
                 <span class="timeline-dot"></span>
@@ -315,37 +306,24 @@ function renderCaseDetailSection(c) {
           </div>
         </article>
 
-        <!-- Bloco 2: Contexto Operacional da Loja -->
+        <!-- Bloco 2: Contexto Operacional & Causa Raiz -->
         <article class="detail-card">
           <div class="detail-card-header">
-            <h4>${icons.clock} 2. Contexto Operacional</h4>
-            <span class="badge ${isDelay ? 'badge-open' : 'badge-resolved'}">
-              ${isDelay ? `+${c.delayMinutes} min de atraso` : 'Dentro do prazo planejado'}
-            </span>
+            <h4>${icons.clock} 2. Diagnóstico da Causa Raiz</h4>
+            <span class="badge badge-sector">SLA: ${c.slaHours}h</span>
           </div>
 
           <div class="ops-metric-box">
-            <div class="ops-times-row">
-              <div class="ops-time-cell">
-                <div class="num">${c.promisedMinutes} min</div>
-                <div class="lbl">Prometido</div>
-              </div>
-              <div class="ops-time-cell ${isDelay ? 'alert' : ''}">
-                <div class="num">${c.actualMinutes} min</div>
-                <div class="lbl">Tempo Real</div>
-              </div>
-              <div class="ops-time-cell">
-                <div class="num">${c.slaMinutes} min</div>
-                <div class="lbl">1º Contato</div>
-              </div>
+            <div style="font-size: 0.85rem; color: var(--text-main); margin-bottom: 6px;">
+              Frente de Atuação: <strong>${escapeHtml(c.sector)}</strong>
             </div>
-            <div style="font-size: 0.8rem; color: var(--text-muted); text-align: center;">
-              Carga da loja no momento: <strong>${escapeHtml(c.peakLoad)}</strong>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">
+              Categoria: <strong>${escapeHtml(c.category)}</strong>
             </div>
           </div>
 
           <div style="margin-top: 10px;">
-            <strong style="font-size: 0.82rem; color: var(--text-main);">Diagnóstico da Causa Raiz:</strong>
+            <strong style="font-size: 0.82rem; color: var(--text-main);">Investigação Técnica:</strong>
             <div class="root-cause-box">
               ${escapeHtml(c.rootCause)}
             </div>
@@ -354,43 +332,37 @@ function renderCaseDetailSection(c) {
           <div style="margin-top: auto; padding-top: 14px;">
             <button class="btn btn-secondary btn-sm" style="width: 100%;" data-action="copy-case-summary" data-id="${c.id}">
               ${icons.copy}
-              <span>Copiar Resumo para a Operação</span>
+              <span>Copiar Resumo para Relatório</span>
             </button>
           </div>
         </article>
 
-        <!-- Bloco 3: Tratativa Imediata & Resolução -->
+        <!-- Bloco 3: Tratativa Imediata & Desfecho -->
         <article class="detail-card">
           <div class="detail-card-header">
-            <h4>${icons.check} 3. Tratativa Imediata &amp; Desfecho</h4>
+            <h4>${icons.check} 3. Acolhimento &amp; Desfecho</h4>
             ${statusBadge(c.status)}
           </div>
 
           <form id="treatment-form" class="treatment-form" data-case-id="${c.id}">
             <div class="form-group">
-              <label>Ação Imediata com o Cliente (Salvar a Experiência)</label>
-              <select class="form-control" name="immediateAction">
-                <option ${c.immediateAction.includes('Cupom') ? 'selected' : ''}>Cupom de compensação (R$ 20)</option>
-                <option ${c.immediateAction.includes('Reenvio') ? 'selected' : ''}>Reenvio imediato prioritário</option>
-                <option ${c.immediateAction.includes('Estorno') ? 'selected' : ''}>Estorno integral via PIX / Cartão</option>
-                <option ${c.immediateAction.includes('nutricionista') || c.immediateAction.includes('ingredientes') ? 'selected' : ''}>Esclarecimento técnico (alergia/ingrediente)</option>
-                <option ${c.immediateAction.includes('Agradecimento') ? 'selected' : ''}>Agradecimento enviado + Registro na cozinha</option>
-                <option ${c.immediateAction.includes('Localização') || c.immediateAction.includes('previsão') ? 'selected' : ''}>Atualização preventiva de previsão</option>
-              </select>
+              <label>Medida de Acolhimento / Solução Adotada</label>
+              <textarea class="form-control" name="immediateAction" rows="3">${escapeHtml(c.immediateAction)}</textarea>
             </div>
 
             <div class="form-group">
-              <label>Custo da Indenização / Ressarcimento (R$)</label>
-              <input type="number" step="0.50" min="0" class="form-control" name="compensationCost" value="${c.compensationCost}">
+              <label>Custo de Apoio / Reparo Emergencial (R$)</label>
+              <input type="number" step="5" min="0" class="form-control" name="contingencyCost" value="${c.contingencyCost}">
             </div>
 
             <div class="form-group">
-              <label>Setor Ofensor (Origem da Falha)</label>
+              <label>Frente Responsável</label>
               <select class="form-control" name="sector">
-                <option ${c.sector === 'Cozinha / Preparo' ? 'selected' : ''}>Cozinha / Preparo</option>
-                <option ${c.sector === 'Expedição / Montagem' ? 'selected' : ''}>Expedição / Montagem</option>
-                <option ${c.sector === 'Logística / Entrega' ? 'selected' : ''}>Logística / Entrega</option>
-                <option ${c.sector === 'Atendimento / Balcão' ? 'selected' : ''}>Atendimento / Balcão</option>
+                <option ${c.sector === 'Infraestrutura & Redes' ? 'selected' : ''}>Infraestrutura & Redes</option>
+                <option ${c.sector === 'Coordenação Pedagógica' ? 'selected' : ''}>Coordenação Pedagógica</option>
+                <option ${c.sector.includes('Nutrição') ? 'selected' : ''}>Qualidade & Nutrição</option>
+                <option ${c.sector === 'Planejamento & Operações' ? 'selected' : ''}>Planejamento & Operações</option>
+                <option ${c.sector === 'Parcerias & Empregabilidade' ? 'selected' : ''}>Parcerias & Empregabilidade</option>
               </select>
             </div>
 
@@ -426,9 +398,9 @@ function renderImprovementsView() {
   const contentHtml = `
     <header class="topbar">
       <div class="topbar-header">
-        <div class="kicker">Engenharia de Operações &amp; Gestão da Qualidade</div>
+        <div class="kicker">Engenharia de Operações &amp; Gestão Socioambiental</div>
         <h1>Diagnóstico de Causa Raiz &amp; Planos de Ação</h1>
-        <p>Análise de Pareto das ocorrências, ofensores por setor e planos de melhoria contínua (PDCA) do turno.</p>
+        <p>Análise de Pareto das manifestações comunitárias e planos de ação corretiva (PDCA) nos polos territoriais.</p>
       </div>
     </header>
 
@@ -437,8 +409,8 @@ function renderImprovementsView() {
       <section class="panel">
         <div class="panel-header">
           <div class="panel-title">
-            <h3>Pareto de Motivos de Reclamação</h3>
-            <p>Distribuição de ocorrências por categoria no turno</p>
+            <h3>Pareto de Manifestações por Categoria</h3>
+            <p>Principais ofensores relatados pelos polos comunitários</p>
           </div>
           <span class="badge badge-sector">${catCounts.length} categorias</span>
         </div>
@@ -447,7 +419,7 @@ function renderImprovementsView() {
             <div class="bar-item">
               <div class="bar-label-row">
                 <strong>${escapeHtml(cat)}</strong>
-                <span>${count} ocorrência${count > 1 ? 's' : ''} (${Math.round((count / state.cases.length) * 100)}%)</span>
+                <span>${count} relato${count > 1 ? 's' : ''} (${Math.round((count / state.cases.length) * 100)}%)</span>
               </div>
               <div class="bar-track">
                 <div class="bar-fill" style="width: ${(count / maxCat) * 100}%"></div>
@@ -457,21 +429,21 @@ function renderImprovementsView() {
         </div>
       </section>
 
-      <!-- Gráfico 2: Ofensores por Setor -->
+      <!-- Gráfico 2: Frentes Responsáveis -->
       <section class="panel">
         <div class="panel-header">
           <div class="panel-title">
-            <h3>Origem das Falhas por Setor</h3>
-            <p>Alocação de responsabilidade operacional no processo</p>
+            <h3>Distribuição por Frente Responsável</h3>
+            <p>Áreas acionadas para resolução e melhoria contínua</p>
           </div>
-          <span class="badge badge-sector">${secCounts.length} setores</span>
+          <span class="badge badge-sector">${secCounts.length} frentes</span>
         </div>
         <div class="bars-list">
           ${secCounts.map(([sec, count]) => `
             <div class="bar-item">
               <div class="bar-label-row">
                 <strong>${escapeHtml(sec)}</strong>
-                <span>${count} falha${count > 1 ? 's' : ''} (${Math.round((count / state.cases.length) * 100)}%)</span>
+                <span>${count} chamado${count > 1 ? 's' : ''} (${Math.round((count / state.cases.length) * 100)}%)</span>
               </div>
               <div class="bar-track">
                 <div class="bar-fill alt" style="width: ${(count / maxSec) * 100}%"></div>
@@ -482,12 +454,12 @@ function renderImprovementsView() {
       </section>
     </div>
 
-    <!-- Planos de Ação Operacional (Melhoria Contínua / PDCA) -->
+    <!-- Planos de Ação Operacional (PDCA) -->
     <section class="panel">
       <div class="panel-header">
         <div class="panel-title">
-          <h3>Planos de Ação Corretiva em Andamento</h3>
-          <p>Medidas de processo para eliminar a reincidência dos maiores ofensores identificados no SAC</p>
+          <h3>Planos de Ação Corretiva em Andamento (PDCA Comunitário)</h3>
+          <p>Medidas de processo para eliminar as causas raízes reincidentes identificadas nas manifestações</p>
         </div>
         <span class="badge badge-resolved">${state.actions.filter(a => a.status === 'Concluída').length} de ${state.actions.length} concluídas</span>
       </div>
@@ -504,7 +476,7 @@ function renderImprovementsView() {
 
             <div class="action-card-body">
               <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 4px;">
-                <strong>Gargalo:</strong> ${escapeHtml(action.problem)}
+                <strong>Gargalo nos Polos:</strong> ${escapeHtml(action.problem)}
               </p>
               <p>
                 <strong>Medida Operacional:</strong> ${escapeHtml(action.action)}
@@ -536,64 +508,85 @@ function renderNewCaseModal() {
     <div class="modal-overlay" id="new-case-modal">
       <div class="modal">
         <div class="modal-header">
-          <h3>Registrar Nova Ocorrência</h3>
+          <h3>Registrar Nova Manifestação Comunitária</h3>
           <button class="btn-reset" data-action="close-modal">✕</button>
         </div>
         <form id="new-case-form">
           <div class="modal-body">
             <div class="form-group">
-              <label>Nome do Cliente *</label>
-              <input class="form-control" name="customer" placeholder="Ex: Fernanda Lima" required>
+              <label>Nome do Beneficiário / Liderança *</label>
+              <input class="form-control" name="beneficiary" placeholder="Ex: Dona Maria Aparecida (Liderança)" required>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+              <div class="form-group">
+                <label>Polo Comunitário *</label>
+                <input class="form-control" name="hub" placeholder="Ex: Polo Digital Norte" required>
+              </div>
               <div class="form-group">
                 <label>Canal *</label>
                 <select class="form-control" name="channel" required>
-                  <option>WhatsApp</option>
-                  <option>Telefone</option>
-                  <option>iFood</option>
-                  <option>Saipos</option>
+                  <option>WhatsApp Comunitário</option>
+                  <option>Reunião de Polo / Presencial</option>
+                  <option>Ouvidoria Digital</option>
+                  <option>Formulário de Aluno/Turma</option>
                 </select>
               </div>
-              <div class="form-group">
-                <label>Número do Pedido *</label>
-                <input class="form-control" name="order" placeholder="Ex: PED-1065" required>
-              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Iniciativa Vinculada *</label>
+              <select class="form-control" name="projectName">
+                <option>Laboratórios Comunitários de Inclusão Digital</option>
+                <option>Programa Bootcamp Dev e Dados para a Juventude</option>
+                <option>Cozinhas Comunitárias e Segurança Alimentar</option>
+                <option>Hortas Urbanas e Agroecologia</option>
+              </select>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
               <div class="form-group">
-                <label>Valor do Pedido (R$)</label>
-                <input type="number" step="0.50" class="form-control" name="orderValue" value="75.00">
+                <label>Categoria</label>
+                <select class="form-control" name="category">
+                  <option>Conectividade &amp; Infraestrutura</option>
+                  <option>Equipamentos &amp; Suprimentos</option>
+                  <option>Pedagógico &amp; Nivelamento</option>
+                  <option>Segurança Sanitária &amp; Alérgenos</option>
+                  <option>Acesso &amp; Grade Horária</option>
+                  <option>Elogio &amp; Impacto Social</option>
+                </select>
               </div>
               <div class="form-group">
-                <label>Categoria Inicial</label>
-                <select class="form-control" name="category">
-                  <option>Atraso na entrega</option>
-                  <option>Item ausente</option>
-                  <option>Segurança alimentar / Alérgeno</option>
-                  <option>Cancelamento</option>
-                  <option>Pagamento / Cobrança</option>
-                  <option>Elogio / Qualidade</option>
+                <label>Gravidade</label>
+                <select class="form-control" name="severity">
+                  <option value="Alta">Alta</option>
+                  <option value="Média">Média</option>
+                  <option value="Crítica">Crítica</option>
+                  <option value="Baixa">Baixa</option>
                 </select>
               </div>
             </div>
 
             <div class="form-group">
-              <label>Itens do Pedido</label>
-              <input class="form-control" name="orderItems" placeholder="Ex: 1x Pizza Calabresa + 1x Refrigerante">
+              <label>Frente de Atuação Responsável</label>
+              <select class="form-control" name="sector">
+                <option>Infraestrutura &amp; Redes</option>
+                <option>Coordenação Pedagógica</option>
+                <option>Qualidade &amp; Nutrição</option>
+                <option>Planejamento &amp; Operações</option>
+                <option>Parcerias &amp; Empregabilidade</option>
+              </select>
             </div>
 
             <div class="form-group">
-              <label>Relato do Cliente (Voz do Cliente) *</label>
-              <textarea class="form-control" name="text" rows="3" placeholder="Transcreva exatamente o que o cliente relatou..." required></textarea>
+              <label>Relato Fiel da Comunidade *</label>
+              <textarea class="form-control" name="text" rows="3" placeholder="Transcreva exatamente o que a liderança ou beneficiário relatou..." required></textarea>
             </div>
           </div>
 
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-action="close-modal">Cancelar</button>
-            <button type="submit" class="btn btn-primary">Registrar Chamado</button>
+            <button type="submit" class="btn btn-primary">Protocolar Manifestação</button>
           </div>
         </form>
       </div>
@@ -644,7 +637,7 @@ function attachEvents() {
       const c = state.cases.find(x => x.id === id);
       if (c) {
         c.immediateAction = formData.get('immediateAction') || c.immediateAction;
-        c.compensationCost = parseFloat(formData.get('compensationCost')) || 0;
+        c.contingencyCost = parseFloat(formData.get('contingencyCost')) || 0;
         c.sector = formData.get('sector') || c.sector;
         const newStatus = formData.get('status') || c.status;
         
@@ -654,20 +647,20 @@ function attachEvents() {
         }
         
         saveState();
-        showToast(`Tratativa do chamado ${id} salva com sucesso!`);
+        showToast(`Tratativa da manifestação ${id} salva com sucesso!`);
         render();
       }
     });
   }
 
-  // Copiar resumo da ocorrência para repasse
+  // Copiar resumo
   document.querySelectorAll('[data-action="copy-case-summary"]').forEach(btn => {
     btn.addEventListener('click', () => {
       const id = btn.getAttribute('data-id');
       const c = state.cases.find(x => x.id === id);
       if (!c) return;
 
-      const summaryText = `[OCORRÊNCIA ${c.id} · ${c.order}]\nCliente: ${c.customer} (${c.channel})\nRelato: "${c.text}"\nSetor: ${c.sector} | Causa: ${c.rootCause}\nTratativa: ${c.immediateAction} (Custo: ${formatCurrency(c.compensationCost)})\nStatus: ${c.status}`;
+      const summaryText = `[MANIFESTAÇÃO ${c.id} · ${c.hub}]\nBeneficiário: ${c.beneficiary} (${c.channel})\nIniciativa: ${c.projectName}\nRelato: "${c.text}"\nFrente: ${c.sector} | Causa: ${c.rootCause}\nTratativa: ${c.immediateAction} (Custo: ${formatCurrency(c.contingencyCost)})\nStatus: ${c.status}`;
 
       navigator.clipboard.writeText(summaryText)
         .then(() => showToast('Resumo copiado para a área de transferência!'))
@@ -675,7 +668,7 @@ function attachEvents() {
     });
   });
 
-  // Abrir Modal de Nova Ocorrência
+  // Abrir Modal
   document.querySelectorAll('[data-action="open-new-case-modal"]').forEach(btn => {
     btn.addEventListener('click', () => {
       modalRoot.innerHTML = renderNewCaseModal();
@@ -683,7 +676,7 @@ function attachEvents() {
     });
   });
 
-  // Alternar status de ação corretiva
+  // Alternar ação corretiva
   document.querySelectorAll('[data-toggle-action]').forEach(btn => {
     btn.addEventListener('click', () => {
       const actId = btn.getAttribute('data-toggle-action');
@@ -702,7 +695,7 @@ function attachEvents() {
     btn.addEventListener('click', () => {
       state = cloneInitialState();
       saveState();
-      showToast('Dados do turno restaurados com sucesso.');
+      showToast('Dados restaurados com sucesso.');
       render();
     });
   });
@@ -724,32 +717,26 @@ function attachModalEvents() {
       e.preventDefault();
       const fd = new FormData(form);
       
-      const newId = `CH-${1060 + state.cases.length + 1}`;
+      const newId = `ESC-${100 + state.cases.length + 1}`;
       const newCase = {
         id: newId,
         channel: fd.get('channel'),
-        customer: fd.get('customer'),
-        order: fd.get('order'),
-        orderValue: parseFloat(fd.get('orderValue')) || 75.00,
-        orderItems: fd.get('orderItems') || 'Itens padrão do pedido',
+        beneficiary: fd.get('beneficiary'),
+        hub: fd.get('hub'),
+        projectName: fd.get('projectName'),
+        date: new Date().toISOString().split('T')[0],
         time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-        rating: null,
         text: fd.get('text'),
         category: fd.get('category'),
-        severity: fd.get('category').includes('Alérgeno') ? 'Crítica' : 'Alta',
-        sector: fd.get('category').includes('Alérgeno') ? 'Cozinha / Preparo' : 'Logística / Entrega',
-        promisedMinutes: 45,
-        actualMinutes: 45,
-        delayMinutes: 0,
-        peakLoad: '28 comandas no forno',
-        rootCause: 'Ocorrência registrada no balcão/SAC em averiguação.',
-        immediateAction: 'Contato imediato com o cliente para acolhimento',
-        compensationCost: 0,
+        severity: fd.get('severity'),
+        sector: fd.get('sector'),
+        rootCause: 'Manifestação acolhida para investigação técnica pela coordenação local.',
+        immediateAction: 'Contato inicial de acolhimento realizado com o beneficiário.',
+        contingencyCost: 0,
         status: 'Aberto',
-        slaMinutes: 1,
-        aiSuggestedTag: fd.get('category'),
+        slaHours: 0.5,
         history: [
-          `${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} · Chamado aberto manualmente`
+          `${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} · Manifestação recebida e protocolada`
         ]
       };
 
@@ -757,7 +744,7 @@ function attachModalEvents() {
       state.selectedCaseId = newId;
       saveState();
       modalRoot.innerHTML = '';
-      showToast(`Chamado ${newId} registrado com sucesso!`);
+      showToast(`Manifestação ${newId} protocolada com sucesso!`);
       render();
     });
   }
