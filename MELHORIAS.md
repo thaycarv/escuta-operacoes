@@ -1,25 +1,30 @@
 # Catálogo de Auditoria e Melhorias: RadarSocial Escuta
 
-Este documento registra as auditorias e transformações realizadas no **RadarSocial Escuta**, sob a ótica de **Engenharia de Produção (Qualidade e Processos)**, **Voz do Cliente (VoC/VoB)** e **Recrutamento Técnico/ESG**, integrando-o formalmente como módulo de ouvidoria ativa e melhoria contínua do ecossistema **RadarSocial**.
+Este documento registra a auditoria e simplificação operacional realizada no **RadarSocial Escuta**, sob a ótica de **Engenharia de Produção (Qualidade e Processos)**, **Voz do Cliente (VoC/VoB)** e **Recrutamento Técnico/ESG**, integrando-o formalmente como módulo de ouvidoria ativa e melhoria contínua do ecossistema **RadarSocial**.
 
 ---
 
-## 1. Comparativo entre Versões & Transformações
+## 1. Auditoria de Realidade & Benchmarking (prototype-reality-auditor)
 
-| Dimensão | Estado Anterior (Legado) | Estado Atual (Módulo RadarSocial Escuta) | Ganho Operacional & Defesa em Entrevistas |
-| :--- | :--- | :--- | :--- |
-| **Escopo & Posicionamento** | Pizzaria fictícia ("Pizza House") com pedidos de iFood e Saipos desconectados do portfólio. | **Extensão oficial do RadarSocial:** módulo de Ouvidoria Ativa e Voz do Beneficiário para polos e serviços comunitários. | Conecta de ponta a ponta a governança macro com a voz de quem é atendido na ponta. |
-| **Versões & Navegação** | Toggles artificiais de "Versão 1.0 vs. 2.0", guias didáticos ("Sair do roteiro") e botões de demo. | **Aplicação única, enxuta e corporativa:** 3 abas essenciais (Central, Diagnóstico, Melhorias) + tela de detalhe do caso. | Elimina o aspecto de trabalho acadêmico ou tutorial e transmite maturidade de produto real. |
-| **Casos & Ancoragem Real** | Queixas de pizza fria, queijo queimado e motoboys. | **Casos reais do portfólio:** Inclusão Digital (Polo Norte), Agricultura Familiar (Cooperativa Terra Viva), Alimentos e Alérgenos (rotulagem nutricional) e Compras (3 cotações de fornecedores). | Sustenta a narrativa autêntica da candidata (Engenharia de Produção + Nutrição). |
-| **Identidade Visual** | Paleta violeta/roxa genérica de IA com emojis soltos nos botões. | **Padrão Editorial Deep Forest & Slate:** ícones vetoriais SVG nítidos, contraste acessível e topbar institucional limpa. | Visual sob medida de alto padrão, sem "cara de Claude Code ou template de IA". |
-| **Governança de Melhorias** | Ações Kanban simples sem conexão de causa e efeito. | **Metodologia de Dupla Validação:** cada ação exige métrica de percepção do usuário (CSAT/reclamações) e métrica interna de processo. | Demonstra domínio prático de ferramentas de qualidade e melhoria contínua. |
-| **Padrão de Ouvidoria & VoC** | Tipologias improvisadas sem correlação com padrões públicos/B2B. | **Alinhamento com Fala.BR (CGU) e Closed-Loop VoC:** tipologia canônica (Reclamação, Solicitação, Sugestão, Elogio, Incidente Crítico) + Inner Loop (com o cidadão) e Outer Loop (processos). | Respaldo total em práticas consagradas de ouvidorias e gestão de qualidade. |
+Com base em benchmarks reais de sistemas de atendimento e ouvidorias corporativas/públicas (**Fala.BR / CGU**, **Movidesk**, **Zendesk** e **Seis Sigma/PDCA**), foram identificadas e eliminadas as seguintes complexidades artificiais:
+
+| Elemento Auditado | Diagnóstico de Complexidade Artificial | Solução Operacional Adotada (Vida Real) |
+| :--- | :--- | :--- |
+| **Barras de Confiança de IA (ex: 92%)** | Não existe em sistemas de atendimento reais; operadores não calibram modelos matemáticos em tela de triagem. | **Eliminado.** A classificação do chamado é baseada no relato e na triagem da coordenação do polo com SLA objetivo em minutos. |
+| **Micro-tempos Artificiais (8m triagem, 42m espera)** | Fragmentação irreal para manifestações de ouvidoria comunitária. | **Simplificado.** Registro do tempo de 1º contato (SLA de acolhimento), tempo de resolução e acompanhamento do custo emergencial. |
+| **Banners Didáticos / "Metodologia de Validação"** | Dava tom de "trabalho acadêmico" ou tutorial para banca avaliadora. | **Substituído.** Interface executiva limpa, com quadro PDCA direto focado em causa raiz e planos de ação. |
+| **Navegação Fragmentada (4 visões)** | Telas de "Investigação" e "Diagnóstico" dispersavam a tomada de decisão. | **Consolidado em 2 visões operacionais:** (1) Fila de Manifestações com Tratativa Imediata e (2) Causa Raiz & Planos de Ação (PDCA). |
+| **Custo de Contingência e Reparos** | Faltava rastreabilidade financeira das queixas comunitárias. | **Adicionado.** Campo de custo de apoio emergencial (contingência) integrado à tratativa e aos indicadores executivos. |
 
 ---
 
-## 2. A Jornada de Gestão de VoC/VoB em 4 Passos (Closed-Loop)
+## 2. As Duas Visões Operacionais
 
-1. **Captura Multicanal sem Filtros:** As manifestações de WhatsApp, balcão, ouvidoria e totens são preservadas em suas palavras originais com tipologia Fala.BR.
-2. **Confronto com Indicadores de Processo:** A manifestação do usuário é confrontada com tempos de triagem, fila de espera e carga concorrente no momento do fato, distinguindo falhas pontuais de gargalos crônicos de capacidade.
-3. **Decisão do Operador & Inner Loop:** Apoio analítico de classificação com supervisão do operador antes de qualquer encaminhamento e resolução direta com o beneficiário.
-4. **Ciclo de Fechamento Sistêmico (Outer Loop / PDCA):** Resolução confirmada formalmente com o beneficiário e retroalimentação do Kanban de melhorias contínuas.
+1. **Central de Manifestações dos Polos:**
+   * Fila operacional filtrável por Polo (Norte, Centro, Sul, Leste), Categoria (Fala.BR), Canal e Status;
+   * Detalhe de caso em 3 blocos diretos: (1) Relato Original do Cidadão, (2) Diagnóstico Operacional & Causa Raiz, (3) Medida de Acolhimento, Custo de Apoio e Resolução;
+   * Copiar Parecer do Chamado em 1 clique para despacho por WhatsApp ou e-mail institucional.
+
+2. **Causa Raiz & Planos de Ação (PDCA Comunitário):**
+   * Gráficos agregados de Pareto por tema e concentração por polo/unidade;
+   * Quadro de ações corretivas com metas de eficácia de processo (ex: redundância 4G, conformidade Anvisa RDC 727, oficinas de cotação).
