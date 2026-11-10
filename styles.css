@@ -369,6 +369,12 @@ button {
   border-color: #e2e8f0;
 }
 
+.badge-purple {
+  background: #f5f3ff;
+  color: #7c3aed;
+  border-color: #ddd6fe;
+}
+
 /* Grade de Métricas */
 .metrics-grid {
   display: grid;

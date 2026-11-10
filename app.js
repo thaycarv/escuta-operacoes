@@ -19,6 +19,7 @@ let currentView = "feedbacks";
 let filters = {
   channel: "Todos",
   unit: "Todas",
+  type: "Todos",
   severity: "Todas",
   status: "Todos",
   search: "",
@@ -70,6 +71,23 @@ function severityTone(value) {
     case "Moderada":
       return "badge-blue";
     case "Informativa":
+      return "badge-green";
+    default:
+      return "badge-gray";
+  }
+}
+
+function typeTone(value) {
+  switch (value) {
+    case "Incidente Crítico":
+      return "badge-red";
+    case "Reclamação":
+      return "badge-amber";
+    case "Solicitação":
+      return "badge-blue";
+    case "Sugestão":
+      return "badge-purple";
+    case "Elogio":
       return "badge-green";
     default:
       return "badge-gray";
@@ -167,7 +185,7 @@ function shell(content, title, subtitle = "Ouvidoria & Voz do Beneficiário") {
       <footer class="app-footer">
         <div class="footer-content">
           <p class="footer-signature">
-            Thayâne Carvalho · Gestão Operacional e Triagem de Demandas · Ecossistema RadarSocial
+            Ecossistema RadarSocial · Módulo de Ouvidoria Ativa &amp; Melhoria Contínua de Processos
           </p>
         </div>
       </footer>
@@ -191,6 +209,7 @@ function feedbacksView() {
   const m = calculateMetrics(state.cases);
   const channels = ["Todos", ...new Set(state.cases.map((x) => x.channel))];
   const units = ["Todas", ...new Set(state.cases.map((x) => x.unit))];
+  const types = ["Todos os Tipos", "Reclamação", "Incidente Crítico", "Solicitação", "Sugestão", "Elogio"];
   const severities = ["Todas", "Crítica", "Alta", "Moderada", "Baixa", "Informativa"];
   const statuses = [
     "Todos",
@@ -205,6 +224,7 @@ function feedbacksView() {
   const items = state.cases.filter((x) => {
     const matchChannel = filters.channel === "Todos" || x.channel === filters.channel;
     const matchUnit = filters.unit === "Todas" || x.unit === filters.unit;
+    const matchType = filters.type === "Todos" || filters.type === "Todos os Tipos" || x.type === filters.type;
     const matchSeverity = filters.severity === "Todas" || x.severity === filters.severity;
     const matchStatus = filters.status === "Todos" || x.status === filters.status;
     const matchSearch =
@@ -214,7 +234,7 @@ function feedbacksView() {
       x.unit.toLowerCase().includes(searchLower) ||
       x.text.toLowerCase().includes(searchLower) ||
       x.theme.toLowerCase().includes(searchLower);
-    return matchChannel && matchUnit && matchSeverity && matchStatus && matchSearch;
+    return matchChannel && matchUnit && matchType && matchSeverity && matchStatus && matchSearch;
   });
 
   const content = `
@@ -253,6 +273,10 @@ function feedbacksView() {
             ${units.map((u) => `<option ${filters.unit === u ? "selected" : ""}>${u}</option>`).join("")}
           </select>
 
+          <select class="filter-select" data-filter="type">
+            ${types.map((t) => `<option value="${t}" ${filters.type === t ? "selected" : ""}>${t}</option>`).join("")}
+          </select>
+
           <select class="filter-select" data-filter="channel">
             ${channels.map((c) => `<option ${filters.channel === c ? "selected" : ""}>${c}</option>`).join("")}
           </select>
@@ -271,11 +295,11 @@ function feedbacksView() {
         <table class="data-table">
           <thead>
             <tr>
-              <th style="width: 130px;">Código / Polo</th>
-              <th style="width: 140px;">Canal / Horário</th>
+              <th style="width: 120px;">Protocolo</th>
+              <th style="width: 140px;">Tipo / Gravidade</th>
+              <th style="width: 170px;">Polo / Canal</th>
               <th>Relato Original do Beneficiário / Cidadão</th>
               <th style="width: 170px;">Tema Operacional</th>
-              <th style="width: 110px;">Gravidade</th>
               <th style="width: 130px;">Status</th>
             </tr>
           </thead>
@@ -291,19 +315,22 @@ function feedbacksView() {
                       ${item.critical ? icons.alertOctagon : ""}
                       <b>${item.id}</b>
                     </div>
-                    <small class="case-subtext">${item.unit}</small>
+                    <small class="case-subtext">${item.time}</small>
                   </td>
                   <td>
-                    <span class="channel-tag">${item.channel}</span>
-                    <small class="case-subtext">${item.time} · ${item.customer}</small>
+                    <div>${badge(item.type, typeTone(item.type))}</div>
+                    <div style="margin-top: 3px;">${badge(item.severity, severityTone(item.severity))}</div>
+                  </td>
+                  <td>
+                    <b>${item.unit}</b>
+                    <small class="case-subtext">${item.channel} · ${item.customer}</small>
                   </td>
                   <td class="text-cell">
-                    <p class="case-quote">${escapeHtml(item.text || "Nota registrada no totem sem comentário escrito.")}</p>
+                    <p class="case-quote">“${escapeHtml(item.text || "Avaliação registrada no totem sem comentário escrito.")}”</p>
                   </td>
                   <td>
                     <span class="theme-text">${escapeHtml(item.theme)}</span>
                   </td>
-                  <td>${badge(item.severity, severityTone(item.severity))}</td>
                   <td>${badge(item.status, statusTone(item.status))}</td>
                 </tr>
               `
@@ -333,9 +360,11 @@ function caseDetailView() {
 
       <div class="detail-header-tags">
         ${badge(item.id, "badge-gray")}
+        ${badge(item.type, typeTone(item.type))}
         ${badge(item.unit, "badge-blue")}
         ${badge(item.severity, severityTone(item.severity))}
         ${item.critical ? badge("Intervenção Imediata da Coordenação", "badge-red") : ""}
+        ${item.resolvedConfirmed ? badge("Resolução Confirmada pelo Cidadão", "badge-green") : ""}
       </div>
 
       <button class="btn btn-primary" data-action="copy-case-report">
@@ -349,7 +378,7 @@ function caseDetailView() {
         <div class="panel-head">
           <div>
             <h3>1. Relato Original do Beneficiário</h3>
-            <p>${item.customer} · Canal: ${item.channel} · Serviço: ${item.serviceCode || "Geral"}</p>
+            <p>${item.customer} · Canal: ${item.channel} · Tipo: ${item.type} · Serviço: ${item.serviceCode || "Geral"}</p>
           </div>
           <div class="rating-box">
             <b>${item.rating ? `${item.rating} / 5` : "Sem nota"}</b>
@@ -927,6 +956,17 @@ function showNewFeedbackModal() {
 
         <div class="modal-form-grid">
           <label class="form-label">
+            <span>Tipo de Manifestação: *</span>
+            <select class="form-select" name="type" required>
+              <option value="Reclamação" selected>Reclamação</option>
+              <option value="Solicitação">Solicitação</option>
+              <option value="Sugestão">Sugestão</option>
+              <option value="Elogio">Elogio</option>
+              <option value="Incidente Crítico">Incidente Crítico (Risco Sanitário/Operacional)</option>
+            </select>
+          </label>
+
+          <label class="form-label">
             <span>Nome do Beneficiário / Solicitante: *</span>
             <input class="form-input" name="customer" placeholder="Ex: Maria Oliveira" required />
           </label>
@@ -1008,7 +1048,9 @@ function showNewFeedbackModal() {
     e.preventDefault();
     const f = new FormData(e.target);
     const newId = `ESC-${String(state.cases.length + 101).padStart(3, "0")}`;
+    const type = f.get("type");
     const severity = f.get("severity");
+    const isCritical = type === "Incidente Crítico" || severity === "Crítica";
 
     state.cases.unshift({
       id: newId,
@@ -1019,7 +1061,7 @@ function showNewFeedbackModal() {
       rating: null,
       nps: null,
       text: f.get("text"),
-      type: severity === "Crítica" ? "Incidente Crítico Sanitário" : "Manifestação Operacional",
+      type: type,
       theme: f.get("theme"),
       severity: severity,
       status: "Novo",
@@ -1027,7 +1069,7 @@ function showNewFeedbackModal() {
       responseMinutes: 0,
       resolvedConfirmed: false,
       duplicateOf: null,
-      critical: severity === "Crítica",
+      critical: isCritical,
       aiConfidence: 75,
       aiStatus: "pending",
       operational: {
@@ -1037,7 +1079,7 @@ function showNewFeedbackModal() {
         concurrent: 25,
       },
       history: [
-        "Manifestação registrada manualmente pela equipe de atendimento",
+        `Manifestação tipo '${type}' registrada pela equipe de atendimento`,
         "Aguardando conferência e validação técnica do operador",
       ],
     });

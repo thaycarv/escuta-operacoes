@@ -13,12 +13,13 @@ Este documento registra as auditorias e transformações realizadas no **RadarSo
 | **Casos & Ancoragem Real** | Queixas de pizza fria, queijo queimado e motoboys. | **Casos reais do portfólio:** Inclusão Digital (Polo Norte), Agricultura Familiar (Cooperativa Terra Viva), Alimentos e Alérgenos (rotulagem nutricional) e Compras (3 cotações de fornecedores). | Sustenta a narrativa autêntica da candidata (Engenharia de Produção + Nutrição). |
 | **Identidade Visual** | Paleta violeta/roxa genérica de IA com emojis soltos nos botões. | **Padrão Editorial Deep Forest & Slate:** ícones vetoriais SVG nítidos, contraste acessível e topbar institucional limpa. | Visual sob medida de alto padrão, sem "cara de Claude Code ou template de IA". |
 | **Governança de Melhorias** | Ações Kanban simples sem conexão de causa e efeito. | **Metodologia de Dupla Validação:** cada ação exige métrica de percepção do usuário (CSAT/reclamações) e métrica interna de processo. | Demonstra domínio prático de ferramentas de qualidade e melhoria contínua. |
+| **Padrão de Ouvidoria & VoC** | Tipologias improvisadas sem correlação com padrões públicos/B2B. | **Alinhamento com Fala.BR (CGU) e Closed-Loop VoC:** tipologia canônica (Reclamação, Solicitação, Sugestão, Elogio, Incidente Crítico) + Inner Loop (com o cidadão) e Outer Loop (processos). | Respaldo total em práticas consagradas de ouvidorias e gestão de qualidade. |
 
 ---
 
-## 2. A Jornada de Gestão de VoC/VoB em 4 Passos
+## 2. A Jornada de Gestão de VoC/VoB em 4 Passos (Closed-Loop)
 
-1. **Captura Multicanal sem Filtros:** As manifestações de WhatsApp, balcão, ouvidoria e totens são preservadas em suas palavras originais.
-2. **Confronto com Indicadores de Processo:** A reclamação do usuário é confrontada com tempos de triagem, fila de espera e carga concorrente no momento do fato, distinguindo falhas pontuais de gargalos crônicos de capacidade.
-3. **Decisão do Operador:** Apoio analítico de classificação com supervisão do operador antes de qualquer encaminhamento.
-4. **Ciclo de Fechamento (PDCA):** Resolução confirmada formalmente com o beneficiário e retroalimentação do Kanban de melhorias contínuas.
+1. **Captura Multicanal sem Filtros:** As manifestações de WhatsApp, balcão, ouvidoria e totens são preservadas em suas palavras originais com tipologia Fala.BR.
+2. **Confronto com Indicadores de Processo:** A manifestação do usuário é confrontada com tempos de triagem, fila de espera e carga concorrente no momento do fato, distinguindo falhas pontuais de gargalos crônicos de capacidade.
+3. **Decisão do Operador & Inner Loop:** Apoio analítico de classificação com supervisão do operador antes de qualquer encaminhamento e resolução direta com o beneficiário.
+4. **Ciclo de Fechamento Sistêmico (Outer Loop / PDCA):** Resolução confirmada formalmente com o beneficiário e retroalimentação do Kanban de melhorias contínuas.
