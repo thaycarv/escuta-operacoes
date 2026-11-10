@@ -575,8 +575,8 @@ function diagnosticsView() {
           </div>
 
           <div class="root-cause-card">
-            <b>3. Rigor de Conformidade Sanitária e Regulatória (Anvisa & MROSC)</b>
-            <p>A falta de modelos padronizados de rotulagem (RDC 727) e formulários de 3 cotações (Lei 13.019) travam o avanço de cooperativas e geram queixas administrativas evitáveis.</p>
+            <b>3. Conformidade Sanitária e Regras de Compras</b>
+            <p>A falta de modelos padronizados de rotulagem (alérgenos) e de templates para as 3 cotações de fornecedores travam o avanço de cooperativas e geram queixas administrativas evitáveis.</p>
           </div>
         </div>
       </article>
@@ -706,7 +706,7 @@ function actionsView() {
         <span class="badge badge-green">Controle da Qualidade</span>
       </div>
       <p class="methodology-note">
-        Toda ação de melhoria deve conter obrigatoriamente um <b>indicador de percepção do cidadão</b> (ex: CSAT, redução de contatos de insatisfação) e um <b>indicador de eficiência de processo</b> (ex: tempo de ciclo, conformidade de fichas técnicas, primeiras submissões aprovadas do MROSC). A validação final só ocorre quando ambos os critérios são atingidos simultaneamente.
+        Toda ação de melhoria deve conter obrigatoriamente um <b>indicador de percepção do cidadão</b> (ex: CSAT, redução de contatos de insatisfação) e um <b>indicador de eficiência de processo</b> (ex: tempo de ciclo, conformidade de fichas técnicas, aprovação de cotações na primeira tentativa). A validação final só ocorre quando ambos os critérios são atingidos simultaneamente.
       </p>
     </section>
   `;
@@ -975,7 +975,7 @@ function showNewFeedbackModal() {
               <option value="Logística e Distribuição">Logística e Distribuição</option>
               <option value="Segurança Nutricional e Alérgenos">Segurança Nutricional e Alérgenos</option>
               <option value="Infraestrutura de TI">Infraestrutura de TI</option>
-              <option value="Conformidade MROSC e Finanças">Conformidade MROSC e Finanças</option>
+              <option value="Compras e Prestação de Contas">Compras e Prestação de Contas</option>
               <option value="Qualidade do Serviço">Qualidade do Serviço</option>
               <option value="Acolhimento Comunitário">Acolhimento Comunitário</option>
             </select>

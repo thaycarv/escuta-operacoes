@@ -169,9 +169,9 @@ export const initialCases = [
     serviceCode: "AGR-1048",
     rating: 2,
     nps: 4,
-    text: "Pedido de adiantamento financeiro para mudas foi retido pela coordenação. Faltou orientação prévia sobre a exigência de 3 cotações do MROSC.",
+    text: "Pedido de adiantamento financeiro para mudas foi retido pela coordenação. Faltou orientação prévia sobre a regra de anexar 3 cotações de fornecedores e notas fiscais.",
     type: "Reclamação Operacional",
-    theme: "Conformidade MROSC e Finanças",
+    theme: "Compras e Prestação de Contas",
     severity: "Alta",
     status: "Em análise",
     time: "15:10",
@@ -188,8 +188,8 @@ export const initialCases = [
       concurrent: 30,
     },
     history: [
-      "Manifestação sobre glosa preventiva de adiantamento",
-      "Enviado modelo padrão de formulário de 3 cotações do MROSC",
+      "Manifestação sobre retenção de adiantamento financeiro",
+      "Enviado modelo padrão para preenchimento das 3 cotações de fornecedores",
     ],
   },
   {
@@ -417,14 +417,14 @@ export const initialActions = [
   },
   {
     id: "AC-04",
-    title: "Checklist simplificado de cotações para o MROSC",
+    title: "Guia simplificado de cotações de compras",
     problem:
-      "Retenção de adiantamentos por falta das 3 cotações de mercado exigidas pela Lei 13.019/2014.",
-    owner: "Governança & PMO Social",
+      "Retenção de adiantamentos por falta das 3 cotações de fornecedores e notas fiscais exigidas pelo projeto.",
+    owner: "Coordenação Administrativa",
     due: "18/11",
     status: "Planejada",
-    experience: "Reclamações de liberação financeira",
-    operational: "Taxa de primeiras submissões aprovadas",
+    experience: "Reclamações sobre liberação financeira",
+    operational: "Pedidos de compras aprovados na primeira análise",
   },
 ];
 

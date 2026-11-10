@@ -16,7 +16,7 @@ Manifestações de beneficiários de programas comunitários chegam fragmentadas
 
 * **Falta de correlação com dados de processo:** Não se identifica se a demora decorreu de saturação física do polo (ex.: mais de 30 jovens simultâneos no Polo Digital) ou falha de comunicação prévia;
 * **Riscos sanitários e nutricionais:** Dúvidas sobre declaração de alérgenos (**Anvisa RDC nº 727/2022**) em refeições de cozinhas comunitárias exigem intervenção técnica imediata da nutricionista;
-* **Dificuldades regulatórias:** Reclamações de atraso em repasses frequentemente revelam falta de modelos padronizados de cotações exigidas pelo **MROSC (Lei nº 13.019/2014)**;
+* **Dificuldades regulatórias e de compras:** Reclamações de atraso em repasses frequentemente revelam falta de modelos padronizados para as 3 cotações de fornecedores e comprovações de compras exigidas pelos projetos;
 * **Planos de ação sem eficácia:** Melhorias que não medem simultaneamente a percepção do usuário e a métrica interna do processo geram retrabalho.
 
 ---
@@ -55,4 +55,4 @@ Manifestações de beneficiários de programas comunitários chegam fragmentadas
 
 ## 👩‍💼 Competências Aplicadas
 
-Voz do Cliente (VoC / VoB) • Engenharia de Processos & Qualidade • Análise de Causa Raiz • PDCA / 5W2H • Conformidade Sanitária (Anvisa RDC 727/2022) • Governança MROSC (Lei 13.019/2014) • Gestão de Filas e Capacidade
+Voz do Cliente (VoC / VoB) • Engenharia de Processos & Qualidade • Análise de Causa Raiz • PDCA / 5W2H • Conformidade Sanitária (Rotulagem e Alérgenos) • Gestão de Compras e Prestação de Contas • Gestão de Filas e Capacidade
