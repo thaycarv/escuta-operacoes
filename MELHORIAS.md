@@ -1,35 +1,24 @@
-# Catálogo de Melhorias: Escuta
+# Catálogo de Auditoria e Melhorias: RadarSocial Escuta
 
-Este documento cataloga as evoluções realizadas no **Escuta**, estruturando a transição da **Versão 1.0** para a **Versão 2.0** com foco em eliminação de sobrecargas cognitivas (over-engineering), navegação fluida e governança analítica.
+Este documento registra as auditorias e transformações realizadas no **RadarSocial Escuta**, sob a ótica de **Engenharia de Produção (Qualidade e Processos)**, **Voz do Cliente (VoC/VoB)** e **Recrutamento Técnico/ESG**, integrando-o formalmente como módulo de ouvidoria ativa e melhoria contínua do ecossistema **RadarSocial**.
 
 ---
 
-## 1. Comparativo entre Versões
+## 1. Comparativo entre Versões & Transformações
 
-| Aspecto | Versão 1.0 | Versão 2.0 (Atual) | Benefício Operacional |
+| Dimensão | Estado Anterior (Legado) | Estado Atual (Módulo RadarSocial Escuta) | Ganho Operacional & Defesa em Entrevistas |
 | :--- | :--- | :--- | :--- |
-| **Navegação** | 7 telas fragmentadas no menu lateral com métricas repetidas entre telas. | 3 visões funcionais diretas (Central de Feedbacks, Diagnóstico de Gargalos e Planos de Melhoria). | Foco total na jornada operacional sem dispersão do usuário. |
-| **Investigação do Caso** | Informações dispersas em 5 caixas separadas com rolagem excessiva. | Layout unificado em 3 colunas (O que o cliente relatou, Dados operacionais reais e Decisão humana). | Comparação imediata entre a percepção do cliente e a realidade do processo. |
-| **Demonstração de Cenários** | Roteiro guiado rígido de 7 passos forçando trocas de tela. | Seletor rápido de cenários operacionais com um clique no topo. | Autonomia total para o visitante testar casos críticos, atrasos e resoluções. |
-| **Comunicação e Reporte** | Sem recurso para extração rápida de parecer técnico. | Botão "Copiar Parecer do Caso" formatado para chamados e alinhamentos. | Agilidade no repasse de diagnósticos para liderança e times de campo. |
-| **Comparabilidade** | Versão única sem histórico de evolução. | Seletor interativo permitindo alternar entre Versão 2.0 e Versão 1.0. | Transparência para recrutadores e gestores avaliarem a maturidade do projeto. |
+| **Escopo & Posicionamento** | Pizzaria fictícia ("Pizza House") com pedidos de iFood e Saipos desconectados do portfólio. | **Extensão oficial do RadarSocial:** módulo de Ouvidoria Ativa e Voz do Beneficiário para polos e serviços comunitários. | Conecta de ponta a ponta a governança macro com a voz de quem é atendido na ponta. |
+| **Versões & Navegação** | Toggles artificiais de "Versão 1.0 vs. 2.0", guias didáticos ("Sair do roteiro") e botões de demo. | **Aplicação única, enxuta e corporativa:** 3 abas essenciais (Central, Diagnóstico, Melhorias) + tela de detalhe do caso. | Elimina o aspecto de trabalho acadêmico ou tutorial e transmite maturidade de produto real. |
+| **Casos & Ancoragem Real** | Queixas de pizza fria, queijo queimado e motoboys. | **Casos reais do portfólio:** Inclusão Digital (Polo Norte), Agricultura Familiar (Cooperativa Terra Viva), Alimentos e Alérgenos (Anvisa RDC 727) e Finanças (MROSC). | Sustenta a narrativa autêntica da candidata (Engenharia de Produção + Nutrição). |
+| **Identidade Visual** | Paleta violeta/roxa genérica de IA com emojis soltos nos botões. | **Padrão Editorial Deep Forest & Slate:** ícones vetoriais SVG nítidos, contraste acessível e topbar institucional limpa. | Visual sob medida de alto padrão, sem "cara de Claude Code ou template de IA". |
+| **Governança de Melhorias** | Ações Kanban simples sem conexão de causa e efeito. | **Metodologia de Dupla Validação:** cada ação exige métrica de percepção do usuário (CSAT/reclamações) e métrica interna de processo. | Demonstra domínio prático de ferramentas de qualidade e melhoria contínua. |
 
 ---
 
-## 2. Detalhamento das Alterações
+## 2. A Jornada de Gestão de VoC/VoB em 4 Passos
 
-1. **Central Multicanal e Investigação Unificada:**
-   * Centralização de feedbacks recebidos via WhatsApp, iFood, Saipos e canais diretos.
-   * Ao abrir um caso, o operador visualiza simultaneamente:
-     * O relato original preservado;
-     * Os tempos por etapa (confirmação, preparo na cozinha, espera de entregador e trajeto);
-     * A recomendação analítica com grau de confiança percentual.
-
-2. **Seletor Rápido de Cenários de Tensão Operacional:**
-   * **Caso Ana:** Incidente crítico de segurança alimentar (alergia) com intervenção humana mandatória;
-   * **Caso Marina:** Atraso decorrente de sobrecarga na cozinha (43 min no preparo);
-   * **Caso Carlos:** Item ausente com resolução imediata confirmada pelo cliente.
-
-3. **Diagnóstico e Melhoria Contínua com Validação Dupla:**
-   * Painel de causa raiz confrontando o volume de pedidos simultâneos com o prazo prometido.
-   * Planos de ação com exigência obrigatória de indicador de percepção (CSAT/NPS) e indicador de processo (tempo de ciclo).
+1. **Captura Multicanal sem Filtros:** As manifestações de WhatsApp, balcão, ouvidoria e totens são preservadas em suas palavras originais.
+2. **Confronto com Indicadores de Processo:** A reclamação do usuário é confrontada com tempos de triagem, fila de espera e carga concorrente no momento do fato, distinguindo falhas pontuais de gargalos crônicos de capacidade.
+3. **Decisão do Operador:** Apoio analítico de classificação com supervisão do operador antes de qualquer encaminhamento.
+4. **Ciclo de Fechamento (PDCA):** Resolução confirmada formalmente com o beneficiário e retroalimentação do Kanban de melhorias contínuas.

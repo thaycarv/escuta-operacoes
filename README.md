@@ -1,77 +1,58 @@
-# Escuta: Voz do Cliente e Melhoria Contínua em Operações
+# RadarSocial Escuta: Ouvidoria Ativa & Voz do Beneficiário (VoC/VoB)
 
-O **Escuta** é um protótipo funcional para coleta, categorização, análise de causa raiz e priorização de melhorias operacionais a partir da Voz do Cliente (VoC), com apoio analítico responsável.
+> **Módulo Integrado ao Ecossistema RadarSocial**  
+> **Aplicação Online:** [https://thaycarv.github.io/escuta-operacoes/](https://thaycarv.github.io/escuta-operacoes/)  
+> **Autora & Coordenação Técnica:** Thayâne Carvalho (Engenharia de Produção & Nutrição)
 
-Consulte o [Catálogo de Melhorias](MELHORIAS.md) para detalhes da evolução do projeto.
+O **RadarSocial Escuta** é o módulo operacional de Ouvidoria Ativa, Gestão da Voz do Usuário/Beneficiário (VoC/VoB), diagnóstico de causa raiz e planos de melhoria contínua de processos do ecossistema **RadarSocial**.
 
----
-
-## 1. O Desafio Operacional
-
-Feedbacks de clientes frequentemente chegam fragmentados entre múltiplos canais (WhatsApp, aplicativos de entrega, formulários de pesquisa e telefone). Na maioria das operações, esses relatos são tratados apenas como reclamações isoladas, sem conexão com os dados reais do processo produtivo.
-
-Essa desconexão gera:
-* Diagnósticos superficiais baseados apenas na insatisfação percebida;
-* Dificuldade de identificar se a falha ocorreu na confirmação, na produção ou na logística de entrega;
-* Falta de rastreabilidade entre o que o cliente disse e as ações de melhoria contínua;
-* Dependência de respostas reativas em vez de correções estruturais na operação.
+Enquanto o **RadarSocial** atua no nível macro-estratégico (governança de programas e controle físico-financeiro) e o **RadarSocial Prioriza** atua na triagem tática de chamados dos polos, o **RadarSocial Escuta** fecha o ciclo de ponta a ponta: escuta quem utiliza os serviços comunitários, confronta a insatisfação percebida com os tempos reais do processo e alimenta planos de ação com dupla validação (satisfação do cidadão + eficiência operacional).
 
 ---
 
-## 2. A Jornada Modelada de VoC
+## 🎯 O Desafio Operacional na Gestão de Serviços Sociais
 
-O fluxo do Escuta conecta a experiência do cliente diretamente aos indicadores de processo:
+Manifestações de beneficiários de programas comunitários chegam fragmentadas por múltiplos canais (WhatsApp dos polos, balcão de acolhimento presencial, totens e ouvidoria geral). Sem conexão com a operação real, esses relatos viram apenas reclamações reativas:
 
-1. **Captura Multicanal:** Centralização de feedbacks recebidos via WhatsApp, iFood, Saipos, telefone ou pesquisa interna;
-2. **Preservação da Linguagem Original:** O relato do cliente é mantido na íntegra, sem alterações ou resumos que eliminem o contexto;
-3. **Apoio Analítico:** O modelo sugere tema provável e gravidade com nível de confiança explícito;
-4. **Validação Humana (Human-in-the-Loop):** O analista valida, corrige ou descarta as sugestões da IA com registro no histórico do chamado;
-5. **Confronto com Dados Operacionais:** Comparação do relato com os tempos reais de cada etapa (confirmação, preparo, espera e rota);
-6. **Planos de Ação de Melhoria:** Criação e acompanhamento de melhorias combinando indicadores de experiência (CSAT/NPS) e indicadores de processo.
+* **Falta de correlação com dados de processo:** Não se identifica se a demora decorreu de saturação física do polo (ex.: mais de 30 jovens simultâneos no Polo Digital) ou falha de comunicação prévia;
+* **Riscos sanitários e nutricionais:** Dúvidas sobre declaração de alérgenos (**Anvisa RDC nº 727/2022**) em refeições de cozinhas comunitárias exigem intervenção técnica imediata da nutricionista;
+* **Dificuldades regulatórias:** Reclamações de atraso em repasses frequentemente revelam falta de modelos padronizados de cotações exigidas pelo **MROSC (Lei nº 13.019/2014)**;
+* **Planos de ação sem eficácia:** Melhorias que não medem simultaneamente a percepção do usuário e a métrica interna do processo geram retrabalho.
 
 ---
 
-## 3. Principais Recursos da Versão 2.0
+## 🧭 As Quatro Visões do Sistema
 
-* **Central Multicanal de Feedbacks:** Tabela filtrável por canal, gravidade e status de resolução;
-* **Investigação Detalhada por Caso:** Visualização lado a lado do relato do cliente, tempos operacionais e histórico auditável;
-* **Parecer de VoC em 1 Clique:** Recurso para copiar o diagnóstico estruturado do caso pronto para compartilhamento;
-* **Painel de Padrões e Hipóteses:** Identificação de causas recorrentes (exemplo: atrasos gerados por saturação de capacidade produtiva);
-* **Quadro Kanban de Melhorias:** Acompanhamento de ações com validação dupla (satisfação do cliente e eficiência operacional);
-* **Painel de Indicadores:** Monitoramento de CSAT, NPS demonstrativo, tempo de resposta e taxa de resolução confirmada.
+1. **Central de Manifestações dos Polos:**
+   * Tabela gerencial filtrável por unidade, canal, gravidade e status, com busca em tempo real;
+   * Indicadores de desempenho em tempo real: CSAT, NPS, tempo médio de primeira resposta e taxa de resolução confirmada pelo cidadão;
+   * Botão de registro manual de ocorrências com histórico auditável.
 
----
+2. **Investigação do Caso & Confronto de Processo:**
+   * **Relato Original:** Preservação integral das palavras do usuário sem filtros de IA que distorçam o contexto;
+   * **Confronto com Dados Reais:** Comparação do relato com tempos de triagem inicial, espera no polo e resolução técnica, além da carga concorrente de pessoas no horário;
+   * **Apoio Analítico com Supervisão Humana:** Sugestão de tema e gravidade com barra de confiança analítica, exigindo validação explícita do operador;
+   * **Parecer do Chamado em 1 Clique:** Exportação estruturada pronta para envio por WhatsApp, e-mail institucional ou registro em chamado.
 
-## 4. Governança e IA Responsável
+3. **Diagnóstico & Causa Raiz:**
+   * Histograma de frequência por tema reclamado nos últimos 30 dias;
+   * Identificação de causas recorrentes (saturação em horários de pico, comunicação reativa);
+   * Comparativo antes vs. depois comprovando o ganho de eficiência após as correções.
 
-* **Transparência:** Todo cálculo de confiança da IA é visível para o operador;
-* **Supervisão Obrigatória:** Nenhuma classificação automática altera status ou encerra chamados sem validação humana;
-* **Sinais Críticos Protegidos:** Casos que envolvem segurança alimentar ou cobranças duplicadas exigem intervenção humana imediata.
-
----
-
-## 5. Estrutura Técnica
-
-* **Tecnologias:** JavaScript ES Modules + HTML5 Semântico + CSS Moderno;
-* **Armazenamento:** Persistência no SessionStorage do navegador para exploração livre;
-* **Execução:** Totalmente estático, compatível com GitHub Pages sem necessidade de backend complexo.
+4. **Planos de Melhoria Contínua (PDCA & VoC):**
+   * Quadro Kanban de ações em 4 estágios: *Planejada*, *Em andamento*, *Verificação* e *Concluída*;
+   * **Metodologia de Dupla Validação:** Toda ação só é considerada concluída se atingir simultaneamente um indicador de percepção do cidadão (CSAT, redução de queixas) e um indicador de processo operacional interno (tempo de ciclo, conformidade de rotulagem).
 
 ---
 
-## 6. Como Executar Localmente
+## 🛠️ Stack Técnica & Arquitetura
 
-1. Clone o repositório:
-   ```bash
-   git clone https://github.com/thaycarv/escuta-operacoes.git
-   ```
-2. Abra o arquivo `index.html` no seu navegador ou utilize um servidor local:
-   ```bash
-   npx serve .
-   ```
-3. Acesse a demonstração pública: `https://thaycarv.github.io/escuta-operacoes/`
+* **Interface:** HTML5 Semântico, CSS3 Moderno (Custom Properties, Flexbox e CSS Grid), JavaScript ES Modules puro (zero dependências pesadas, carga instantânea no navegador);
+* **Design System:** Padrão editorial Slate Mineral & Deep Forest com ícones SVG vetoriais nítidos em todos os componentes;
+* **Execução:** 100% Client-Side, compatível com GitHub Pages com persistência no SessionStorage do navegador.
 
 ---
 
-## 7. Créditos
+## 👩‍💼 Competências Aplicadas
 
-Projeto autoral desenvolvido por **Thayâne Carvalho**, focado em **Voz do Cliente (VoC), Gestão de Operações e Melhoria Contínua**.
+Voz do Cliente (VoC / VoB) • Engenharia de Processos & Qualidade • Análise de Causa Raiz • PDCA / 5W2H • Conformidade Sanitária (Anvisa RDC 727/2022) • Governança MROSC (Lei 13.019/2014) • Gestão de Filas e Capacidade

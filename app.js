@@ -1,406 +1,602 @@
-import { cloneInitialState, calculateMetrics, themeCounts, canValidateAI, canVerifyAction } from './data.js';
+// RadarSocial Escuta — Ouvidoria Ativa, Voz do Usuário/Beneficiário (VoC/VoB) & Melhoria Contínua
+// Sistema Operacional Integrado ao Ecossistema RadarSocial
 
-const app = document.getElementById('app');
-const modalRoot = document.getElementById('modal-root');
-const toastEl = document.getElementById('toast');
-const storageKey = 'escuta-app-state-v2';
+import {
+  cloneInitialState,
+  calculateMetrics,
+  themeCounts,
+  canValidateAI,
+  canVerifyAction,
+} from "./data.js";
+
+const app = document.getElementById("app");
+const modalRoot = document.getElementById("modal-root");
+const toastEl = document.getElementById("toast");
+const storageKey = "radarsocial-escuta-state-v3";
 
 let state = loadState();
-let selectedVersion = 'v2'; // 'v2' por padrão ou 'v1'
-let currentView = 'feedbacks'; // Na v2, começa na central de feedbacks
-let filters = { channel:'Todos', severity:'Todas', status:'Todos' };
-let surveyRating = 0;
-
-// Navegação Versão 2.0 (Unificada e Simplificada)
-const viewsV2 = [
-  ['feedbacks', '≡', 'Central de Feedbacks'],
-  ['diagnostics', '⌁', 'Diagnóstico e Gargalos'],
-  ['actions', '✓', 'Planos de Melhoria']
-];
-
-// Navegação Versão 1.0 (Original com 6 abas)
-const viewsV1 = [
-  ['dashboard', '◫', 'Visão geral'],
-  ['survey', '◇', 'Avaliação do cliente'],
-  ['feedbacks', '≡', 'Feedbacks'],
-  ['patterns', '⌁', 'Padrões e causas'],
-  ['actions', '✓', 'Melhorias'],
-  ['indicators', '↗', 'Indicadores']
-];
-
-const guideStepsV1 = [
-  { view:'dashboard', title:'Queda identificada', text:'Observe a satisfação e o aumento dos contatos relacionados a atrasos.' },
-  { view:'patterns', title:'Padrão sugerido', text:'Compare prazo informado, volume acumulado e ausência de atualização.' },
-  { view:'feedbacks', title:'Evidências abertas', text:'Consulte os relatos associados e preserve os casos divergentes.' },
-  { view:'case', title:'Caso investigado', text:'Confronte o relato com os dados reais das etapas do pedido.' },
-  { view:'patterns', title:'Causa analisada', text:'A hipótese inicial é confrontada com produção, espera e trajeto.' },
-  { view:'actions', title:'Melhoria executada', text:'Acompanhe o ajuste de prazo e a comunicação preventiva.' },
-  { view:'indicators', title:'Resultado verificado', text:'Compare indicadores de experiência e de operação.' }
-];
+let currentView = "feedbacks";
+let filters = {
+  channel: "Todos",
+  unit: "Todas",
+  severity: "Todas",
+  status: "Todos",
+  search: "",
+};
 
 function loadState() {
-  try { return JSON.parse(sessionStorage.getItem(storageKey)) || cloneInitialState(); }
-  catch { return cloneInitialState(); }
+  try {
+    const raw = sessionStorage.getItem(storageKey);
+    return raw ? JSON.parse(raw) : cloneInitialState();
+  } catch {
+    return cloneInitialState();
+  }
 }
-function saveState() { sessionStorage.setItem(storageKey, JSON.stringify(state)); }
-function escapeHtml(value='') { return String(value).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
-function toast(message) { toastEl.textContent=message; toastEl.classList.add('show'); setTimeout(()=>toastEl.classList.remove('show'),2400); }
-function badge(text, tone='') { return `<span class="badge ${tone}">${escapeHtml(text)}</span>`; }
-function severityTone(value) { return value==='Crítica'?'red':value==='Alta'?'amber':value==='Informativa'?'green':'violet'; }
-function statusTone(value) { return value==='Resolvido'?'green':value==='Novo'?'red':value==='Aguardando ação interna'?'amber':'violet'; }
 
-function shell(content, title, kicker='Voz do Cliente: Pizza House') {
-  const currentNav = selectedVersion === 'v2' ? viewsV2 : viewsV1;
+function saveState() {
+  sessionStorage.setItem(storageKey, JSON.stringify(state));
+}
+
+function escapeHtml(value = "") {
+  return String(value).replace(
+    /[&<>'"]/g,
+    (c) =>
+      ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "'": "&#39;",
+        '"': "&quot;",
+      }[c])
+  );
+}
+
+function toast(message) {
+  toastEl.textContent = message;
+  toastEl.classList.add("show");
+  setTimeout(() => toastEl.classList.remove("show"), 2600);
+}
+
+function badge(text, tone = "") {
+  return `<span class="badge ${tone}">${escapeHtml(text)}</span>`;
+}
+
+function severityTone(value) {
+  switch (value) {
+    case "Crítica":
+      return "badge-red";
+    case "Alta":
+      return "badge-amber";
+    case "Moderada":
+      return "badge-blue";
+    case "Informativa":
+      return "badge-green";
+    default:
+      return "badge-gray";
+  }
+}
+
+function statusTone(value) {
+  switch (value) {
+    case "Resolvido":
+      return "badge-green";
+    case "Novo":
+      return "badge-red";
+    case "Aguardando ação interna":
+      return "badge-amber";
+    case "Aguardando cliente":
+      return "badge-orange";
+    case "Vinculado":
+      return "badge-gray";
+    default:
+      return "badge-blue";
+  }
+}
+
+// Ícones SVG Vetoriais Nítidos (Lucide Style)
+const icons = {
+  layers: `<svg class="nav-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>`,
+  list: `<svg class="nav-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>`,
+  activity: `<svg class="nav-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
+  kanban: `<svg class="nav-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>`,
+  search: `<svg class="icon-inline" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`,
+  plus: `<svg class="icon-inline" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+  copy: `<svg class="icon-inline" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`,
+  check: `<svg class="icon-inline" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+  alertTriangle: `<svg class="icon-inline text-amber" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+  alertOctagon: `<svg class="icon-inline text-red" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
+};
+
+const navigation = [
+  ["feedbacks", icons.list, "Central de Manifestações"],
+  ["diagnostics", icons.activity, "Diagnóstico & Gargalos"],
+  ["actions", icons.kanban, "Planos de Melhoria"],
+];
+
+function shell(content, title, subtitle = "Ouvidoria & Voz do Beneficiário") {
   return `<div class="app-shell">
     <aside class="sidebar" id="sidebar">
       <div class="brand">
-        <span class="brand-mark">E</span>
-        <span><strong>Escuta</strong><small>Voz do Cliente</small></span>
-        <button class="btn btn-small mobile-menu" data-action="menu">Menu</button>
-      </div>
-
-      <div class="version-toggle-box">
-        <span class="version-label">Modo de Visualização:</span>
-        <div class="version-switch">
-          <button class="version-btn ${selectedVersion==='v2'?'is-active':''}" data-version="v2">Versão 2.0</button>
-          <button class="version-btn ${selectedVersion==='v1'?'is-active':''}" data-version="v1">Versão 1.0</button>
+        <div class="brand-mark-wrapper">
+          ${icons.layers}
         </div>
+        <div>
+          <b>RadarSocial Escuta</b>
+          <small>Ouvidoria & Melhoria Contínua</small>
+        </div>
+        <button class="mobile-menu-btn" data-action="menu" aria-label="Abrir Menu">✕</button>
       </div>
 
       <nav class="nav">
-        ${currentNav.map(([id,icon,label])=>`
-          <button class="nav-button ${currentView===id?'active':''}" data-view="${id}">
-            <span class="nav-icon">${icon}</span>${label}
+        ${navigation
+          .map(
+            ([id, icon, label]) => `
+          <button class="nav-button ${currentView === id ? "active" : ""}" data-view="${id}">
+            <span class="nav-icon">${icon}</span>
+            <span>${label}</span>
           </button>
-        `).join('')}
+        `
+          )
+          .join("")}
       </nav>
 
       <div class="side-footer">
-        <div class="demo-label">${selectedVersion==='v2'?'Versão 2.0: Interface Unificada':'Versão 1.0: Estrutura Original'}</div>
-        <button class="btn btn-ghost btn-small" data-action="reset">Restaurar demonstração</button>
+        <div class="system-status-box">
+          <span class="status-indicator"></span>
+          <span>Ecossistema RadarSocial</span>
+        </div>
+        <small class="version-tag">Módulo VoC/VoB · Versão 3.0</small>
       </div>
     </aside>
 
-    <main class="main">
+    <main class="main-content">
       <header class="topbar">
         <div>
-          <div class="page-kicker">${kicker}</div>
+          <div class="topbar-kicker">${subtitle}</div>
           <h1>${title}</h1>
         </div>
-        <div class="top-actions">
-          ${selectedVersion === 'v1' ? `<button class="btn" data-action="guide">${state.guideActive?'Sair do roteiro':'Iniciar roteiro'}</button>` : ''}
-          <button class="btn btn-secondary" data-action="new-survey-modal">Simular Avaliação do Cliente</button>
-          <button class="btn btn-primary" data-action="new-feedback">+ Novo feedback manual</button>
+        <div class="topbar-actions">
+          <button class="btn btn-primary" data-action="new-feedback">
+            ${icons.plus} Nova Manifestação
+          </button>
         </div>
       </header>
 
-      ${selectedVersion === 'v1' && state.guideActive ? renderGuideV1() : ''}
       ${content}
+
+      <footer class="app-footer">
+        <div class="footer-content">
+          <p class="footer-signature">
+            Thayâne Carvalho · Gestão Operacional e Triagem de Demandas · Ecossistema RadarSocial
+          </p>
+        </div>
+      </footer>
     </main>
   </div>`;
 }
 
-function renderGuideV1() {
-  const step = guideStepsV1[state.guideStep];
-  return `<section class="guide"><div class="guide-step">${state.guideStep+1}</div><div><strong>${step.title}</strong><p>${step.text}</p></div><div class="action-row"><button class="btn btn-small" data-action="guide-prev" ${state.guideStep===0?'disabled':''}>Voltar</button><button class="btn btn-small btn-primary" data-action="guide-next">${state.guideStep===guideStepsV1.length-1?'Concluir':'Avançar'}</button></div></section>`;
+function metric(label, value, note, tone = "") {
+  return `
+    <article class="metric-card ${tone}">
+      <div class="metric-label">${label}</div>
+      <div class="metric-value">${value}</div>
+      <div class="metric-note">${note}</div>
+    </article>
+  `;
 }
 
-function metric(label,value,note,tone='') { return `<article class="metric"><div class="metric-label">${label}</div><div class="metric-value ${tone}">${value}</div><div class="metric-note">${note}</div></article>`; }
+// ==================== VISÃO 1: CENTRAL DE MANIFESTAÇÕES ====================
 
-// ==================== VISÕES VERSÃO 2.0 ====================
-
-const candidateScenarios = [
-  { id: 'ESC-008', title: 'Caso Ana: Alergia e Segurança Alimentar', tone: 'critical', emoji: '🔴' },
-  { id: 'ESC-001', title: 'Caso Marina: Atraso por Sobrecarga (43 min na cozinha)', tone: 'warning', emoji: '🟡' },
-  { id: 'ESC-003', title: 'Caso Júlia: Incidente de Atraso Crítico', tone: 'critical', emoji: '🔴' },
-  { id: 'ESC-004', title: 'Caso Bruno: Cancelamento por Demora', tone: 'warning', emoji: '🟡' },
-  { id: 'ESC-007', title: 'Caso Paulo: Cobrança Duplicada', tone: 'critical', emoji: '🔴' },
-  { id: 'ESC-006', title: 'Caso Renata: Atraso na Entrega', tone: 'warning', emoji: '🟡' }
-];
-
-function feedbacksV2() {
+function feedbacksView() {
   const m = calculateMetrics(state.cases);
-  const channels = ['Todos', ...new Set(state.cases.map(x=>x.channel))];
-  const severities = ['Todas','Crítica','Alta','Moderada','Baixa','Informativa'];
-  const statuses = ['Todos', ...new Set(state.cases.map(x=>x.status))];
-  const items = state.cases.filter(x=>(filters.channel==='Todos'||x.channel===filters.channel)&&(filters.severity==='Todas'||x.severity===filters.severity)&&(filters.status==='Todos'||x.status===filters.status));
+  const channels = ["Todos", ...new Set(state.cases.map((x) => x.channel))];
+  const units = ["Todas", ...new Set(state.cases.map((x) => x.unit))];
+  const severities = ["Todas", "Crítica", "Alta", "Moderada", "Baixa", "Informativa"];
+  const statuses = [
+    "Todos",
+    "Novo",
+    "Em análise",
+    "Aguardando ação interna",
+    "Aguardando cliente",
+    "Resolvido",
+  ];
 
-  // Filtra apenas cenários em aberto (que ainda NÃO foram resolvidos)
-  const activeScenarios = candidateScenarios.filter(s => {
-    const c = state.cases.find(x => x.id === s.id);
-    return c && c.status !== 'Resolvido' && !c.resolvedConfirmed;
-  }).slice(0, 3);
+  const searchLower = filters.search.toLowerCase();
+  const items = state.cases.filter((x) => {
+    const matchChannel = filters.channel === "Todos" || x.channel === filters.channel;
+    const matchUnit = filters.unit === "Todas" || x.unit === filters.unit;
+    const matchSeverity = filters.severity === "Todas" || x.severity === filters.severity;
+    const matchStatus = filters.status === "Todos" || x.status === filters.status;
+    const matchSearch =
+      !filters.search ||
+      x.id.toLowerCase().includes(searchLower) ||
+      x.customer.toLowerCase().includes(searchLower) ||
+      x.unit.toLowerCase().includes(searchLower) ||
+      x.text.toLowerCase().includes(searchLower) ||
+      x.theme.toLowerCase().includes(searchLower);
+    return matchChannel && matchUnit && matchSeverity && matchStatus && matchSearch;
+  });
 
   const content = `
-    <!-- Cenários de Demonstração Rápida Dinâmicos -->
-    <div class="quick-scenarios-bar">
-      <span class="scenario-title">Cenários Operacionais em Aberto:</span>
-      <div class="scenario-pills">
-        ${activeScenarios.length > 0 
-          ? activeScenarios.map(s => `
-              <button class="scenario-pill scenario-pill--${s.tone}" data-open-case="${s.id}">
-                ${s.emoji} ${s.title}
-              </button>
-            `).join('')
-          : '<span class="scenario-resolved-msg">✓ Todos os principais casos operacionais em destaque foram solucionados!</span>'
-        }
-      </div>
-    </div>
-
-    <!-- Indicadores Compactos de Entrada -->
-    <section class="grid metrics" style="margin-bottom: 20px;">
-      ${metric('CSAT Médio', m.csat.toFixed(1) + ' / 5', 'Percepção de qualidade', 'positive')}
-      ${metric('NPS Demonstrativo', m.nps, `${m.npsResponses} respostas apuradas`, m.nps < 0 ? 'danger' : '')}
-      ${metric('Tempo Médio de Resposta', m.avgResponse + ' min', 'Primeiro contato')}
-      ${metric('Resolução Confirmada', m.resolvedRate + '%', 'Validação formal pelo cliente')}
+    <!-- Indicadores Principais de Ouvidoria -->
+    <section class="metrics-grid">
+      ${metric("CSAT dos Polos", `${m.csat.toFixed(1)} / 5`, "Índice de satisfação apurado", "metric-positive")}
+      ${metric("Net Promoter Score (NPS)", m.nps > 0 ? `+${m.nps}` : m.nps, `${m.npsResponses} respostas de beneficiários`, m.nps >= 0 ? "metric-positive" : "metric-danger")}
+      ${metric("Tempo Médio de 1ª Resposta", `${m.avgResponse} min`, "Tempo de acolhimento inicial")}
+      ${metric("Resolução Confirmada", `${m.resolvedRate}%`, "Validação formal pelo cidadão")}
     </section>
 
-    <!-- Tabela Principal de Feedbacks -->
+    <!-- Tabela Principal de Manifestações -->
     <section class="panel">
       <div class="panel-head">
         <div>
-          <h3>Central Multicanal de Feedbacks</h3>
-          <p>${items.length} de ${state.cases.length} registros cadastrados. Clique em qualquer linha para investigar o caso.</p>
-        </div>
-        <div class="filter-row">
-          <select class="select" data-filter="channel">${channels.map(v=>`<option ${filters.channel===v?'selected':''}>${v}</option>`).join('')}</select>
-          <select class="select" data-filter="severity">${severities.map(v=>`<option ${filters.severity===v?'selected':''}>${v}</option>`).join('')}</select>
-          <select class="select" data-filter="status">${statuses.map(v=>`<option ${filters.status===v?'selected':''}>${v}</option>`).join('')}</select>
+          <h3>Fila de Manifestações dos Polos</h3>
+          <p>${items.length} ocorrências listadas. Clique em qualquer linha para auditar os tempos operacionais e a causa raiz.</p>
         </div>
       </div>
+
+      <!-- Barra de Filtros Operacionais -->
+      <div class="filters-toolbar">
+        <div class="search-input-box">
+          ${icons.search}
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Buscar por código, cidadão, polo ou palavra-chave..."
+            value="${escapeHtml(filters.search)}"
+            data-filter-search
+          />
+        </div>
+
+        <div class="select-group">
+          <select class="filter-select" data-filter="unit">
+            ${units.map((u) => `<option ${filters.unit === u ? "selected" : ""}>${u}</option>`).join("")}
+          </select>
+
+          <select class="filter-select" data-filter="channel">
+            ${channels.map((c) => `<option ${filters.channel === c ? "selected" : ""}>${c}</option>`).join("")}
+          </select>
+
+          <select class="filter-select" data-filter="severity">
+            ${severities.map((s) => `<option ${filters.severity === s ? "selected" : ""}>${s}</option>`).join("")}
+          </select>
+
+          <select class="filter-select" data-filter="status">
+            ${statuses.map((st) => `<option ${filters.status === st ? "selected" : ""}>${st}</option>`).join("")}
+          </select>
+        </div>
+      </div>
+
       <div class="table-wrap">
-        <table>
+        <table class="data-table">
           <thead>
             <tr>
-              <th>Código / Pedido</th>
-              <th>Canal</th>
-              <th>Relato Original do Cliente</th>
-              <th>Tema Sugerido</th>
-              <th>Gravidade</th>
-              <th>Status</th>
+              <th style="width: 130px;">Código / Polo</th>
+              <th style="width: 140px;">Canal / Horário</th>
+              <th>Relato Original do Beneficiário / Cidadão</th>
+              <th style="width: 170px;">Tema Operacional</th>
+              <th style="width: 110px;">Gravidade</th>
+              <th style="width: 130px;">Status</th>
             </tr>
           </thead>
           <tbody>
-            ${items.map(item=>`
-              <tr class="clickable" data-case="${item.id}">
-                <td>
-                  <strong>${item.id}</strong><br>
-                  <span class="metric-note">${item.order} · ${item.time}</span>
-                </td>
-                <td>${item.channel}</td>
-                <td class="quote">${escapeHtml(item.text || 'Sem comentário: contexto solicitado')}</td>
-                <td>${escapeHtml(item.theme)}</td>
-                <td>${badge(item.severity, severityTone(item.severity))}</td>
-                <td>${badge(item.status, statusTone(item.status))}</td>
-              </tr>
-            `).join('')}
+            ${
+              items.length > 0
+                ? items
+                    .map(
+                      (item) => `
+                <tr class="clickable-row ${item.critical ? "row-critical" : ""}" data-case="${item.id}">
+                  <td>
+                    <div class="case-id-badge">
+                      ${item.critical ? icons.alertOctagon : ""}
+                      <b>${item.id}</b>
+                    </div>
+                    <small class="case-subtext">${item.unit}</small>
+                  </td>
+                  <td>
+                    <span class="channel-tag">${item.channel}</span>
+                    <small class="case-subtext">${item.time} · ${item.customer}</small>
+                  </td>
+                  <td class="text-cell">
+                    <p class="case-quote">${escapeHtml(item.text || "Nota registrada no totem sem comentário escrito.")}</p>
+                  </td>
+                  <td>
+                    <span class="theme-text">${escapeHtml(item.theme)}</span>
+                  </td>
+                  <td>${badge(item.severity, severityTone(item.severity))}</td>
+                  <td>${badge(item.status, statusTone(item.status))}</td>
+                </tr>
+              `
+                    )
+                    .join("")
+                : `<tr><td colspan="6" class="empty-state-cell">Nenhuma ocorrência encontrada para os filtros selecionados.</td></tr>`
+            }
           </tbody>
         </table>
       </div>
     </section>
   `;
-  return shell(content, 'Central de Feedbacks e Atendimento');
+  return shell(content, "Central de Manifestações dos Polos");
 }
 
-function caseDetailV2() {
-  const item = state.cases.find(x => x.id === state.selectedCase) || state.cases[0];
-  const total = Object.values(item.operational).slice(0,4).reduce((a,b)=>a+b,0);
+// ==================== VISÃO 2: INVESTIGAÇÃO DO CASO ====================
+
+function caseDetailView() {
+  const item = state.cases.find((x) => x.id === state.selectedCase) || state.cases[0];
   const canValidate = canValidateAI(item);
 
   const content = `
-    <div class="detail-nav-bar">
-      <button class="btn btn-secondary" data-view="feedbacks">← Voltar à Central de Feedbacks</button>
-      <div class="detail-tags">
-        ${badge(item.id, 'violet')}
+    <div class="detail-top-nav">
+      <button class="btn btn-secondary" data-view="feedbacks">
+        ← Voltar à Central de Manifestações
+      </button>
+
+      <div class="detail-header-tags">
+        ${badge(item.id, "badge-gray")}
+        ${badge(item.unit, "badge-blue")}
         ${badge(item.severity, severityTone(item.severity))}
-        ${item.critical ? badge('Intervenção Humana Obrigatória', 'red') : ''}
+        ${item.critical ? badge("Intervenção Imediata da Coordenação", "badge-red") : ""}
       </div>
-      <button class="btn btn-primary" data-action="copy-case-report">📋 Copiar Parecer do Caso</button>
+
+      <button class="btn btn-primary" data-action="copy-case-report">
+        ${icons.copy} Copiar Parecer do Chamado
+      </button>
     </div>
 
-    <div class="grid case-unified-grid">
-      <!-- Bloco 1: O que o cliente relatou -->
+    <div class="case-grid">
+      <!-- Coluna 1: Relato Original & Histórico -->
       <article class="panel">
         <div class="panel-head">
           <div>
-            <h3>1. Relato Original do Cliente</h3>
-            <p>${item.customer} · Canal: ${item.channel} · Pedido ${item.order}</p>
+            <h3>1. Relato Original do Beneficiário</h3>
+            <p>${item.customer} · Canal: ${item.channel} · Serviço: ${item.serviceCode || "Geral"}</p>
           </div>
-          <span class="metric-value">${item.rating ? item.rating + ' / 5' : 'Sem nota'}</span>
+          <div class="rating-box">
+            <b>${item.rating ? `${item.rating} / 5` : "Sem nota"}</b>
+            <small>Avaliação</small>
+          </div>
         </div>
-        <div class="quote-box">
-          <p class="quote">“${escapeHtml(item.text || 'Nota registrada sem comentário de texto.')}”</p>
+
+        <div class="quote-card">
+          <p>“${escapeHtml(item.text || "Avaliação sem comentário escrito.")}”</p>
         </div>
-        <div class="history-box">
-          <strong>Histórico Auditável do Chamado:</strong>
-          <div class="timeline" style="margin-top: 10px;">
-            ${item.history.map(h => `
-              <div class="timeline-item">
-                <span class="timeline-dot"></span>
-                <div>${escapeHtml(h)}</div>
+
+        <div class="history-block">
+          <b>Histórico de Atendimento e Ações Auditáveis:</b>
+          <div class="timeline-list">
+            ${item.history
+              .map(
+                (h) => `
+              <div class="timeline-entry">
+                <span class="timeline-bullet"></span>
+                <p>${escapeHtml(h)}</p>
               </div>
-            `).join('')}
+            `
+              )
+              .join("")}
           </div>
         </div>
       </article>
 
-      <!-- Bloco 2: O que os dados do pedido comprovam -->
+      <!-- Coluna 2: Dados Operacionais Reais (Confronto de Processo) -->
       <article class="panel">
         <div class="panel-head">
           <div>
-            <h3>2. Dados Operacionais do Pedido</h3>
-            <p>Confronto dos tempos reais no momento da ocorrência</p>
+            <h3>2. Confronto com Dados de Processo</h3>
+            <p>Tempos apurados no polo no momento da ocorrência</p>
           </div>
-          ${badge(`${total} min no total`, 'violet')}
+          <span class="badge badge-gray">${item.time}</span>
         </div>
 
-        <div class="evidence-grid grid" style="margin-bottom: 16px;">
-          <div class="evidence">
-            <span class="metric-label">1. Confirmação</span>
-            <strong>${item.operational.confirmation} min</strong>
+        <div class="process-metrics-grid">
+          <div class="process-metric-card">
+            <span class="process-step-num">1</span>
+            <small>Triagem Inicial</small>
+            <b>${item.operational.triage} min</b>
           </div>
-          <div class="evidence ${item.operational.production > 35 ? 'evidence--alert' : ''}">
-            <span class="metric-label">2. Cozinha (Preparo)</span>
-            <strong>${item.operational.production} min</strong>
+
+          <div class="process-metric-card ${item.operational.serviceWait > 30 ? "metric-alert" : ""}">
+            <span class="process-step-num">2</span>
+            <small>Espera no Polo</small>
+            <b>${item.operational.serviceWait} min</b>
           </div>
-          <div class="evidence ${item.operational.courierWait > 12 ? 'evidence--alert' : ''}">
-            <span class="metric-label">3. Espera Entregador</span>
-            <strong>${item.operational.courierWait} min</strong>
-          </div>
-          <div class="evidence">
-            <span class="metric-label">4. Trajeto da Rota</span>
-            <strong>${item.operational.route} min</strong>
+
+          <div class="process-metric-card">
+            <span class="process-step-num">3</span>
+            <small>Resolução / Ação</small>
+            <b>${item.operational.resolution} min</b>
           </div>
         </div>
 
-        <div class="operational-summary-box">
-          <strong>Carga Operacional da Loja:</strong>
-          <p>${item.operational.concurrent} pedidos simultâneos no horário (${item.time}).</p>
-          <small class="metric-note">
-            ${item.operational.production > 35 
-              ? 'Indício: Gargalo concentrado na linha de produção da cozinha.' 
-              : 'Indício: Tempo de produção compatível com o padrão planejado.'}
-          </small>
+        <div class="capacity-box">
+          <div class="capacity-head">
+            <b>Carga Operacional da Unidade:</b>
+            <span class="capacity-pill">${item.operational.concurrent} atendimentos simultâneos</span>
+          </div>
+          <p class="capacity-diagnostic">
+            ${
+              item.operational.serviceWait > 30
+                ? "<b>Diagnóstico:</b> Gargalo de capacidade física no polo. A sobrecarga de pessoas no local gerou fila de espera e atraso no atendimento."
+                : "<b>Diagnóstico:</b> Tempo de atendimento compatível com o padrão programado. Falha concentrada na comunicação prévia com os usuários."
+            }
+          </p>
         </div>
       </article>
 
-      <!-- Bloco 3: Apoio analítico e Decisão Humana -->
+      <!-- Coluna 3: Parecer do Operador & Apoio Analítico -->
       <aside class="panel">
         <div class="panel-head">
           <div>
-            <h3>3. Apoio Analítico e Resolução</h3>
-            <p>Classificação assistida com controle humano</p>
+            <h3>3. Resolução & Parecer do Operador</h3>
+            <p>Supervisão técnica e decisão com o cidadão</p>
           </div>
-          ${badge(item.aiStatus==='validated'?'Validada':item.aiStatus==='corrected'?'Corrigida':'Pendente', item.aiStatus==='validated'?'green':'violet')}
+          ${badge(
+            item.aiStatus === "validated"
+              ? "Classificação Validada"
+              : item.aiStatus === "corrected"
+              ? "Classificação Corrigida"
+              : "Pendente de Avaliação",
+            item.aiStatus === "validated" ? "badge-green" : "badge-amber"
+          )}
         </div>
 
-        <div class="ai-box" style="margin-bottom: 16px;">
-          <p><strong>Tema Provável:</strong> ${escapeHtml(item.theme)}<br>
-          <strong>Gravidade Sugerida:</strong> ${item.severity}</p>
-          <div class="confidence">
-            <span>Grau de Confiança Analítica:</span>
-            <strong>${item.aiConfidence}%</strong>
+        <div class="ai-analysis-box">
+          <div class="ai-field-row">
+            <span class="ai-field-label">Tema Provável:</span>
+            <b>${escapeHtml(item.theme)}</b>
           </div>
-          <div class="confidence-track">
-            <div class="confidence-fill" style="width: ${item.aiConfidence}%"></div>
+          <div class="ai-field-row">
+            <span class="ai-field-label">Gravidade Sugerida:</span>
+            <b>${item.severity}</b>
           </div>
-          ${!canValidate ? '<p class="danger" style="margin-top: 8px; font-size: 0.8rem;">Informações insuficientes para validação direta.</p>' : ''}
-          <div class="action-row" style="margin-top: 12px;">
-            <button class="btn btn-small btn-primary" data-ai="validate" ${!canValidate?'disabled':''}>Validar Sugestão</button>
-            <button class="btn btn-small" data-ai="correct">Corrigir</button>
-            <button class="btn btn-small" data-ai="reject">Não Utilizar</button>
+
+          <div class="confidence-bar-wrapper">
+            <div class="confidence-header">
+              <span>Grau de Confiança Analítica:</span>
+              <b>${item.aiConfidence}%</b>
+            </div>
+            <div class="confidence-track">
+              <div class="confidence-fill" style="width: ${item.aiConfidence}%;"></div>
+            </div>
+          </div>
+
+          <div class="ai-buttons-row">
+            <button class="btn btn-small btn-primary" data-ai="validate" ${!canValidate ? "disabled" : ""}>
+              Validar Classificação
+            </button>
+            <button class="btn btn-small btn-secondary" data-ai="correct">
+              Corrigir
+            </button>
+            <button class="btn btn-small btn-ghost" data-ai="reject">
+              Não Utilizar
+            </button>
           </div>
         </div>
 
-        <div class="treatment-box">
-          <label style="display:block; margin-bottom: 8px;">
-            <span class="metric-label">Status do Chamado</span>
-            <select class="select input" data-case-field="status">
-              ${['Novo','Em análise','Aguardando ação interna','Aguardando cliente','Resolvido','Encerrado sem confirmação'].map(v=>`<option ${item.status===v?'selected':''}>${v}</option>`).join('')}
+        <div class="status-action-block">
+          <label class="form-label">
+            <span>Status do Chamado:</span>
+            <select class="form-select" data-case-field="status">
+              ${[
+                "Novo",
+                "Em análise",
+                "Aguardando ação interna",
+                "Aguardando cliente",
+                "Resolvido",
+              ]
+                .map((v) => `<option ${item.status === v ? "selected" : ""}>${v}</option>`)
+                .join("")}
             </select>
           </label>
 
-          <label style="display:block; margin-bottom: 14px;">
-            <span class="metric-label">Gravidade Final</span>
-            <select class="select input" data-case-field="severity">
-              ${['Crítica','Alta','Moderada','Baixa','Informativa'].map(v=>`<option ${item.severity===v?'selected':''}>${v}</option>`).join('')}
+          <label class="form-label">
+            <span>Gravidade Técnica:</span>
+            <select class="form-select" data-case-field="severity">
+              ${["Crítica", "Alta", "Moderada", "Baixa", "Informativa"]
+                .map((v) => `<option ${item.severity === v ? "selected" : ""}>${v}</option>`)
+                .join("")}
             </select>
           </label>
 
-          <button class="btn btn-primary full-width" data-action="confirm-resolution" ${item.resolvedConfirmed?'disabled':''}>
-            ${item.resolvedConfirmed ? '✓ Resolução Validada pelo Cliente' : 'Confirmar Resolução com o Cliente'}
+          <button
+            class="btn btn-success full-width"
+            data-action="confirm-resolution"
+            ${item.resolvedConfirmed ? "disabled" : ""}
+          >
+            ${
+              item.resolvedConfirmed
+                ? `${icons.check} Resolução Validada pelo Cidadão`
+                : "Confirmar Resolução com o Beneficiário"
+            }
           </button>
         </div>
       </aside>
     </div>
   `;
-  return shell(content, `Investigação do Caso ${item.id}`);
+  return shell(content, `Investigação do Chamado ${item.id}`, item.unit);
 }
 
-function diagnosticsV2() {
+// ==================== VISÃO 3: DIAGNÓSTICO & GARGALOS ====================
+
+function diagnosticsView() {
   const counts = themeCounts(state.cases);
-  const max = Math.max(...counts.map(x => x[1]));
-  const m = calculateMetrics(state.cases);
+  const max = Math.max(...counts.map((x) => x[1]));
 
   const content = `
-    <!-- Resumo dos Gargalos Identificados -->
-    <section class="grid two-col" style="margin-bottom: 20px;">
+    <div class="diagnostics-grid">
+      <!-- Frequência de Temas -->
       <article class="panel">
         <div class="panel-head">
           <div>
             <h3>Frequência de Temas Reclamados</h3>
-            <p>Distribuição de relatos únicos nos últimos 7 dias</p>
+            <p>Distribuição de manifestações únicas nos polos atendidos</p>
           </div>
-          ${badge('Volume por Tema', 'violet')}
+          <span class="badge badge-blue">Últimos 30 Dias</span>
         </div>
-        <div class="bars">
-          ${counts.map(([theme, count]) => `
-            <div>
-              <div class="hbar-head">
+
+        <div class="bars-container">
+          ${counts
+            .map(
+              ([theme, count]) => `
+            <div class="bar-row">
+              <div class="bar-labels">
                 <span>${escapeHtml(theme)}</span>
-                <strong>${count} casos</strong>
+                <b>${count} ocorrência(s)</b>
               </div>
-              <div class="hbar-track">
-                <div class="hbar-fill" style="width: ${(count/max)*100}%"></div>
+              <div class="bar-track">
+                <div class="bar-fill" style="width: ${(count / max) * 100}%;"></div>
               </div>
             </div>
-          `).join('')}
+          `
+            )
+            .join("")}
         </div>
       </article>
 
+      <!-- Diagnóstico de Causa Raiz Operacional -->
       <article class="panel">
         <div class="panel-head">
           <div>
             <h3>Diagnóstico de Causa Raiz</h3>
-            <p>Capacidade produtiva versus prazo informado</p>
+            <p>Análise de correlação entre saturação física e insatisfação</p>
           </div>
-          ${badge('Hipótese Confirmada', 'green')}
+          <span class="badge badge-green">Causa Raiz Confirmada</span>
         </div>
-        <div class="pattern-card">
-          <strong>Gargalo na Produção em Horários de Pico</strong>
-          <p>Os atrasos se concentram quando a loja ultrapassa 25 pedidos simultâneos. O tempo de forno/preparo sobe para 45 minutos, mas o aplicativo continua prometendo entrega em 45 minutos no total.</p>
-        </div>
-        <div class="pattern-card">
-          <strong>Comunicação Reativa com o Cliente</strong>
-          <p>O cliente só descobre o atraso quando cobra o atendimento. A falta de aviso preventivo eleva o volume de contatos e a insatisfação.</p>
+
+        <div class="root-cause-cards">
+          <div class="root-cause-card">
+            <b>1. Saturação Física nos Horários de Pico</b>
+            <p>As queixas de lentidão e espera no Polo Digital Norte e na Cozinha Comunitária coincidem com horários em que o fluxo supera 30 pessoas simultâneas, gerando sobrecarga física e de infraestrutura elétrica.</p>
+          </div>
+
+          <div class="root-cause-card">
+            <b>2. Comunicação Reativa em Casos de Imprevistos</b>
+            <p>Beneficiários relataram que só descobrem atrasos de entrega ou panes técnicas após chegarem presencialmente ao polo. A ausência de alerta prévio via WhatsApp eleva em 40% a insatisfação registrada.</p>
+          </div>
+
+          <div class="root-cause-card">
+            <b>3. Rigor de Conformidade Sanitária e Regulatória (Anvisa & MROSC)</b>
+            <p>A falta de modelos padronizados de rotulagem (RDC 727) e formulários de 3 cotações (Lei 13.019) travam o avanço de cooperativas e geram queixas administrativas evitáveis.</p>
+          </div>
         </div>
       </article>
-    </section>
+    </div>
 
-    <!-- Comparativo de Resultados Antes versus Depois -->
-    <section class="panel">
+    <!-- Comparativo Antes vs Depois -->
+    <section class="panel" style="margin-top: 20px;">
       <div class="panel-head">
         <div>
-          <h3>Impacto das Ações Corretivas</h3>
-          <p>Comparativo em períodos equivalentes antes e depois da implementação das melhorias</p>
+          <h3>Impacto das Ações de Melhoria Contínua</h3>
+          <p>Comparativo em períodos equivalentes antes e depois da implementação dos planos de ação</p>
         </div>
-        ${badge('Resultados Operacionais', 'positive')}
+        <span class="badge badge-green">Evolução Mensurada</span>
       </div>
+
       <div class="table-wrap">
-        <table>
+        <table class="data-table">
           <thead>
             <tr>
-              <th>Indicador</th>
+              <th>Indicador Operacional</th>
               <th>Antes da Melhoria</th>
               <th>Depois da Melhoria</th>
               <th>Resultado Observado</th>
@@ -408,507 +604,450 @@ function diagnosticsV2() {
           </thead>
           <tbody>
             <tr>
-              <td><strong>CSAT Médio (Satisfação)</strong></td>
+              <td><b>CSAT Geral dos Polos (Satisfação)</b></td>
               <td>3,2 / 5</td>
-              <td><strong>3,8 / 5</strong></td>
-              <td class="positive">Evolução positiva (+0,6 pontos)</td>
+              <td><b>4,2 / 5</b></td>
+              <td class="text-positive">+1,0 ponto na satisfação geral</td>
             </tr>
             <tr>
-              <td><strong>Contatos por Atraso a cada 100 pedidos</strong></td>
-              <td>18 contatos</td>
-              <td><strong>10 contatos</strong></td>
-              <td class="positive">Redução de 44% no volume de queixas</td>
+              <td><b>Contatos por Atraso a cada 100 atendimentos</b></td>
+              <td>22 manifestações</td>
+              <td><b>9 manifestações</b></td>
+              <td class="text-positive">Redução de 59% nas reclamações de espera</td>
             </tr>
             <tr>
-              <td><strong>Tempo Total (Confirmação até Entrega)</strong></td>
-              <td>76 minutos</td>
-              <td><strong>68 minutos</strong></td>
-              <td class="positive">Ganho de 8 minutos no ciclo</td>
+              <td><b>Tempo Médio de Espera no Polo</b></td>
+              <td>48 minutos</td>
+              <td><b>22 minutos</b></td>
+              <td class="text-positive">Ganho de 26 minutos por beneficiário</td>
             </tr>
             <tr>
-              <td><strong>Taxa de Resposta da Pesquisa</strong></td>
-              <td>22%</td>
-              <td><strong>25%</strong></td>
-              <td>Amostra em consolidação</td>
+              <td><b>Conformidade de Rotulagem Sanitária (Anvisa)</b></td>
+              <td>65%</td>
+              <td><b>100% dos lotes</b></td>
+              <td class="text-positive">Zero autuações após dupla checagem</td>
             </tr>
           </tbody>
         </table>
       </div>
     </section>
   `;
-  return shell(content, 'Diagnóstico de Gargalos e Causas');
+  return shell(content, "Diagnóstico de Gargalos & Causa Raiz");
 }
 
-function actionsV2() {
-  const statuses = ['Planejada', 'Em andamento', 'Verificação', 'Concluída'];
+// ==================== VISÃO 4: PLANOS DE MELHORIA ====================
+
+function actionsView() {
+  const statuses = ["Planejada", "Em andamento", "Verificação", "Concluída"];
+
   const content = `
-    <section class="grid kanban">
-      ${statuses.map(status => `
-        <div class="kanban-col">
-          <div class="kanban-title">
-            <span>${status}</span>
-            <strong>${state.actions.filter(a => a.status === status).length}</strong>
+    <!-- Kanban de Melhoria Contínua -->
+    <section class="kanban-grid">
+      ${statuses
+        .map(
+          (status) => `
+        <div class="kanban-column">
+          <div class="kanban-column-head">
+            <span class="kanban-column-title">${status}</span>
+            <b class="kanban-column-count">${
+              state.actions.filter((a) => a.status === status).length
+            }</b>
           </div>
-          ${state.actions.filter(a => a.status === status).map(a => `
-            <article class="action-card">
-              <strong>${escapeHtml(a.title)}</strong>
-              <p>${escapeHtml(a.problem)}</p>
-              <div class="metric-note">${a.owner} · Prazo: ${a.due}</div>
-              <div class="action-row" style="margin-top: 10px;">
-                ${badge(a.experience, 'violet')}
-                ${badge(a.operational)}
-              </div>
-              ${status === 'Verificação' ? `
-                <button class="btn btn-small btn-primary" style="margin-top: 10px; width: 100%;" data-verify="${a.id}" ${canVerifyAction(a)?'':'disabled'}>
-                  Validar Resultado
-                </button>
-              ` : ''}
-            </article>
-          `).join('')}
+
+          <div class="kanban-cards-list">
+            ${state.actions
+              .filter((a) => a.status === status)
+              .map(
+                (a) => `
+              <article class="action-card">
+                <div class="action-card-header">
+                  <span class="action-id-tag">${a.id}</span>
+                  <span class="action-due-tag">Prazo: ${a.due}</span>
+                </div>
+                <b>${escapeHtml(a.title)}</b>
+                <p>${escapeHtml(a.problem)}</p>
+                <div class="action-owner-tag">Responsável: ${a.owner}</div>
+
+                <div class="action-indicators-box">
+                  <small>Dupla Validação:</small>
+                  <div class="indicator-chips">
+                    <span class="chip-exp">${a.experience}</span>
+                    <span class="chip-proc">${a.operational}</span>
+                  </div>
+                </div>
+
+                ${
+                  status === "Verificação"
+                    ? `
+                  <button class="btn btn-small btn-primary full-width" style="margin-top: 10px;" data-verify="${a.id}">
+                    Validar Conclusão
+                  </button>
+                `
+                    : ""
+                }
+              </article>
+            `
+              )
+              .join("")}
+          </div>
         </div>
-      `).join('')}
+      `
+        )
+        .join("")}
     </section>
 
+    <!-- Metodologia Institucional -->
     <section class="panel" style="margin-top: 20px;">
       <div class="panel-head">
         <div>
-          <h3>Metodologia de Validação Dupla</h3>
-          <p>Garantia de que melhorias impactem tanto o cliente quanto a eficiência operacional</p>
+          <h3>Metodologia de Validação Dupla de Melhorias (PDCA & VoC)</h3>
+          <p>Garantia de que cada ação resolva a dor do usuário e aumente a eficiência interna do processo</p>
         </div>
-        ${badge('Governança', 'green')}
+        <span class="badge badge-green">Controle da Qualidade</span>
       </div>
-      <p class="metric-note">
-        Toda ação de melhoria deve conter obrigatoriamente um indicador de percepção do cliente (ex: CSAT, Contatos por atraso) e um indicador de processo interno (ex: Tempo de confirmação, Falhas por 100 pedidos).
+      <p class="methodology-note">
+        Toda ação de melhoria deve conter obrigatoriamente um <b>indicador de percepção do cidadão</b> (ex: CSAT, redução de contatos de insatisfação) e um <b>indicador de eficiência de processo</b> (ex: tempo de ciclo, conformidade de fichas técnicas, primeiras submissões aprovadas do MROSC). A validação final só ocorre quando ambos os critérios são atingidos simultaneamente.
       </p>
     </section>
   `;
-  return shell(content, 'Planos de Melhoria Contínua');
+  return shell(content, "Planos de Ação & Melhoria Contínua");
 }
 
-// ==================== VISÕES VERSÃO 1.0 (LEGACY) ====================
-
-function dashboardV1() {
-  const m = calculateMetrics(state.cases);
-  const content = `
-    <section class="grid metrics">
-      ${metric('CSAT médio', m.csat.toFixed(1), '+0,6 no cenário pós-ação', 'positive')}
-      ${metric('NPS demonstrativo', m.nps, m.npsResponses + ' respostas: amostra reduzida', m.nps < 0 ? 'danger' : '')}
-      ${metric('Resolução confirmada', m.resolvedRate + '%', 'Encerrados sem confirmação não contam')}
-      ${metric('Casos em acompanhamento', m.open, '1 exige intervenção imediata', 'warning')}
-    </section>
-    <section class="grid two-col">
-      <article class="panel"><div class="panel-head"><div><h3>Satisfação versus contatos sobre atraso</h3><p>Comparação demonstrativa dos últimos 7 períodos</p></div>${badge('Correlação, não causalidade','violet')}</div>
-        <div class="chart">${[54,48,58,63,71,82,67].map((v,i)=>`<div class="chart-col"><div class="bar" style="height:${v}%"></div><div class="bar alt" style="height:${[34,39,31,49,66,79,58][i]}%"></div></div>`).join('')}</div>
-        <div class="chart-labels">${['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'].map(x=>`<span>${x}</span>`).join('')}</div>
-      </article>
-      <aside class="panel"><div class="panel-head"><div><h3>Padrão em investigação</h3><p>5 casos relacionados</p></div>${badge('Confiança 82%','violet')}</div>
-        <div class="pattern-card"><strong>Prazo incompatível com capacidade</strong><p>Os contatos aumentam quando há mais de 25 pedidos simultâneos e o prazo permanece em 45 minutos.</p></div>
-        <div class="pattern-card"><strong>Comunicação reativa</strong><p>Clientes solicitam atualização antes de receber qualquer aviso preventivo.</p></div>
-        <button class="btn btn-primary" data-view="patterns">Investigar evidências</button>
-      </aside>
-    </section>`;
-  return shell(content, 'Visão Geral (Versão 1.0)');
-}
-
-function surveyV1() {
-  const content = `<section class="survey-wrap"><article class="panel survey-card"><div class="panel-head"><div><h2>Como foi seu pedido?</h2><p>Leva menos de um minuto. Sua resposta ajuda a melhorar a operação.</p></div>${badge('Tela do cliente')}</div>
-    <form id="survey-form" class="form-grid">
-      <label>Número do pedido<input class="input" name="order" placeholder="Ex.: PH-1062" required></label>
-      <label>Canal<select class="select input" name="channel" required><option>WhatsApp</option><option>iFood</option><option>Saipos</option><option>Telefone</option></select></label>
-      <div class="full"><span class="metric-label">Satisfação com este pedido *</span><div class="rating">${[1,2,3,4,5].map(n=>`<button type="button" data-rating="${n}" class="${surveyRating===n?'selected':''}" aria-label="Nota ${n}">${n}</button>`).join('')}</div></div>
-      <label class="full">Motivo principal<select class="select input" name="theme" required><option value="">Selecione</option><option>Qualidade do produto</option><option>Item ausente</option><option>Tempo de entrega</option><option>Atendimento e comunicação</option><option>Pagamento ou cobrança</option><option>Outro</option></select></label>
-      <label class="full">Conte o que aconteceu<textarea name="text" placeholder="Descreva sua experiência" required></textarea></label>
-      <label>Probabilidade de recomendar (opcional)<select class="select input" name="nps"><option value="">Não responder</option>${Array.from({length:11},(_,i)=>`<option>${i}</option>`).join('')}</select></label>
-      <label>Contato (opcional)<input class="input" name="contact" placeholder="WhatsApp ou telefone"></label>
-      <div class="full action-row"><button class="btn btn-primary" type="submit">Enviar avaliação</button><span class="metric-note">Sua linguagem original será preservada.</span></div>
-    </form>
-  </article></section>`;
-  return shell(content, 'Avaliação do Cliente (Versão 1.0)');
-}
-
-function patternsV1() {
-  const counts = themeCounts(state.cases);
-  const max = Math.max(...counts.map(x => x[1]));
-  const content = `<section class="grid two-col"><article class="panel"><div class="panel-head"><div><h3>Temas recorrentes</h3><p>Registros únicos (últimos 7 dias)</p></div>${badge('Taxa e volume','violet')}</div><div class="bars">${counts.map(([theme,count])=>`<div><div class="hbar-head"><span>${escapeHtml(theme)}</span><strong>${count}</strong></div><div class="hbar-track"><div class="hbar-fill" style="width:${(count/max)*100}%"></div></div></div>`).join('')}</div></article>
-    <aside class="panel"><div class="panel-head"><div><h3>Hipótese em análise</h3><p>Prazo informado versus capacidade</p></div>${badge('Confiança 82%','violet')}</div><div class="pattern-card"><strong>Indício, não diagnóstico</strong><p>5 casos se concentram em períodos com mais de 25 pedidos simultâneos. A produção representa parcela maior do tempo total do que o trajeto.</p></div><button class="btn btn-primary" data-action="open-related">Abrir casos relacionados</button></aside></section>
-    <section class="panel" style="margin-top:14px"><div class="panel-head"><div><h3>Evidências confrontadas</h3><p>O sistema exibe também o que contradiz a hipótese</p></div></div><div class="evidence-grid grid">
-      <div class="evidence"><span class="metric-label">Pedidos simultâneos</span><strong>31 a 36</strong><span class="metric-note">nos principais casos</span></div>
-      <div class="evidence"><span class="metric-label">Produção média</span><strong>45 min</strong><span class="metric-note">principal parcela observada</span></div>
-      <div class="evidence"><span class="metric-label">Caso divergente</span><strong>1</strong><span class="metric-note">atraso sem saturação</span></div>
-    </div></section>`;
-  return shell(content, 'Padrões e Causas (Versão 1.0)');
-}
-
-function indicatorsV1() {
-  const m = calculateMetrics(state.cases);
-  const content = `<section class="grid metrics">${metric('CSAT',m.csat.toFixed(1)+'/5','11 avaliações válidas','positive')}${metric('NPS',m.nps,m.npsResponses+' respostas: participação visível',m.nps<0?'danger':'')}${metric('Primeira resposta',m.avgResponse+' min','Média dos registros com resposta')}${metric('Resolução confirmada',m.resolvedRate+'%','Sem confirmação permanece separado')}</section>
-  <section class="grid two-col"><article class="panel"><div class="panel-head"><div><h3>Antes e depois da melhoria</h3><p>Períodos equivalentes: dados simulados</p></div>${badge('Não comprova causalidade','violet')}</div><div class="table-wrap"><table style="min-width:560px"><thead><tr><th>Indicador</th><th>Antes</th><th>Depois</th><th>Leitura</th></tr></thead><tbody>
-    <tr><td>CSAT</td><td>3,2</td><td>3,8</td><td class="positive">Melhora observada</td></tr><tr><td>Contatos por atraso / 100 pedidos</td><td>18</td><td>10</td><td class="positive">Redução observada</td></tr><tr><td>Tempo de confirmação e entrega</td><td>76 min</td><td>68 min</td><td class="positive">Redução parcial</td></tr><tr><td>Taxa de resposta da pesquisa</td><td>22%</td><td>25%</td><td>Amostra ainda limitada</td></tr>
-  </tbody></table></div></article><aside class="panel"><div class="panel-head"><div><h3>Leitura responsável</h3><p>Interpretação do cenário</p></div></div><div class="pattern-card"><strong>Resultado promissor</strong><p>Satisfação e contatos melhoraram, enquanto o tempo operacional caiu parcialmente.</p></div><div class="pattern-card"><strong>Limite da evidência</strong><p>A amostra é pequena e o período não isola fatores externos. A ação permanece em verificação.</p></div></aside></section>`;
-  return shell(content, 'Indicadores e Resultados (Versão 1.0)');
-}
-
-// ==================== CONTROLE DE RENDERIZAÇÃO ====================
+// ==================== CONTROLE DE EVENTOS & NAVEGAÇÃO ====================
 
 function render() {
-  if (selectedVersion === 'v2') {
-    if (currentView === 'case') {
-      app.innerHTML = caseDetailV2();
-    } else if (currentView === 'diagnostics') {
-      app.innerHTML = diagnosticsV2();
-    } else if (currentView === 'actions') {
-      app.innerHTML = actionsV2();
-    } else {
-      app.innerHTML = feedbacksV2();
-    }
-  } else {
-    // Versão 1.0
-    const mapV1 = {
-      dashboard: dashboardV1,
-      survey: surveyV1,
-      feedbacks: () => feedbacksV2(), // reutiliza a tabela com o shell V1
-      case: caseDetailV2,
-      patterns: patternsV1,
-      actions: actionsV2,
-      indicators: indicatorsV1
-    };
-    app.innerHTML = (mapV1[currentView] || dashboardV1)();
+  switch (currentView) {
+    case "case":
+      app.innerHTML = caseDetailView();
+      break;
+    case "diagnostics":
+      app.innerHTML = diagnosticsView();
+      break;
+    case "actions":
+      app.innerHTML = actionsView();
+      break;
+    case "feedbacks":
+    default:
+      app.innerHTML = feedbacksView();
+      break;
   }
   bindEvents();
 }
 
 function go(view) {
   currentView = view;
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  window.scrollTo({ top: 0, behavior: "smooth" });
   render();
 }
 
 function copyCaseReport() {
-  const item = state.cases.find(x => x.id === state.selectedCase) || state.cases[0];
+  const item = state.cases.find((x) => x.id === state.selectedCase) || state.cases[0];
   if (!item) return;
-  const total = Object.values(item.operational).slice(0,4).reduce((a,b)=>a+b,0);
-  const text = `*Parecer de Voz do Cliente: Caso ${item.id}*
-Cliente: ${item.customer} | Canal: ${item.channel} | Pedido: ${item.order}
-Horário: ${item.time} | Avaliação: ${item.rating ? item.rating + '/5' : 'Não informada'}
 
-*1. Relato Original do Cliente:*
-"${item.text || 'Sem comentário de texto registrado'}"
+  const text = `*Parecer de Ouvidoria & VoC: Chamado ${item.id}*
+Unidade: ${item.unit} | Canal: ${item.channel}
+Cidadão: ${item.customer} | Horário: ${item.time} | Avaliação: ${item.rating ? `${item.rating}/5` : "Não informada"}
 
-*2. Dados Operacionais Reais:*
-- Tempo Total: ${total} min
-- Confirmação: ${item.operational.confirmation} min | Preparo/Cozinha: ${item.operational.production} min
-- Espera do Entregador: ${item.operational.courierWait} min | Rota: ${item.operational.route} min
-- Pedidos Simultâneos na Loja: ${item.operational.concurrent}
+*1. Relato Original do Beneficiário:*
+"${item.text || "Manifestação registrada sem comentário escrito."}"
 
-*3. Apoio Analítico:*
-- Tema Provável: ${item.theme}
-- Gravidade Sugerida: ${item.severity} (Confiança: ${item.aiConfidence}%)
-- Status de Validação: ${item.aiStatus}
+*2. Dados Operacionais Apurados:*
+- Triagem Inicial: ${item.operational.triage} min
+- Tempo de Espera no Polo: ${item.operational.serviceWait} min
+- Resolução Técnica: ${item.operational.resolution} min
+- Atendimentos Concorrentes: ${item.operational.concurrent} pessoas
 
-*4. Decisão e Tratamento Humano:*
+*3. Apoio Analítico & Causa Raiz:*
+- Tema Operacional: ${item.theme}
+- Gravidade Apurada: ${item.severity} (Confiança: ${item.aiConfidence}%)
+- Status de Validação: ${item.aiStatus === "validated" ? "Validado por operador" : "Pendente de análise"}
+
+*4. Tratamento & Resolução:*
 - Status Atual: ${item.status}
-- Resolução Validada pelo Cliente: ${item.resolvedConfirmed ? 'Sim' : 'Pendente'}
-`;
+- Resolução Confirmada pelo Cidadão: ${item.resolvedConfirmed ? "Sim (Concluído)" : "Pendente"}
+
+_RadarSocial Escuta · Coordenação de Operações_`;
+
   navigator.clipboard.writeText(text);
-  toast(`✓ Parecer do caso ${item.id} copiado para a área de transferência.`);
+  toast(`✓ Parecer do chamado ${item.id} copiado para a área de transferência.`);
 }
 
 function bindEvents() {
-  // Troca de Versão 2.0 / 1.0
-  document.querySelectorAll('[data-version]').forEach(el => el.addEventListener('click', () => {
-    selectedVersion = el.dataset.version;
-    currentView = selectedVersion === 'v2' ? 'feedbacks' : 'dashboard';
-    render();
-    toast(`Alternado para a ${selectedVersion === 'v2' ? 'Versão 2.0 (Simplificada)' : 'Versão 1.0 (Original)'}`);
-  }));
-
   // Navegação
-  document.querySelectorAll('[data-view]').forEach(el => el.addEventListener('click', () => go(el.dataset.view)));
-  document.querySelector('[data-action="menu"]')?.addEventListener('click', () => document.getElementById('sidebar').classList.toggle('mobile-open'));
-  
-  // Roteiro V1
-  document.querySelector('[data-action="guide"]')?.addEventListener('click', () => { state.guideActive = !state.guideActive; saveState(); render(); });
-  document.querySelector('[data-action="guide-prev"]')?.addEventListener('click', () => { state.guideStep = Math.max(0, state.guideStep-1); currentView = guideStepsV1[state.guideStep].view; saveState(); render(); });
-  document.querySelector('[data-action="guide-next"]')?.addEventListener('click', () => {
-    if (state.guideStep === guideStepsV1.length-1) {
-      state.guideActive = false;
-      state.guideStep = 0;
-      toast('Roteiro concluído.');
-    } else {
-      state.guideStep++;
-      currentView = guideStepsV1[state.guideStep].view;
-    }
-    saveState();
-    render();
+  document.querySelectorAll("[data-view]").forEach((el) =>
+    el.addEventListener("click", () => go(el.dataset.view))
+  );
+
+  // Menu móvel
+  document.querySelector('[data-action="menu"]')?.addEventListener("click", () => {
+    document.getElementById("sidebar").classList.toggle("mobile-open");
   });
 
-  // Ações globais
-  document.querySelector('[data-action="reset"]')?.addEventListener('click', showResetModal);
-  document.querySelector('[data-action="new-feedback"]')?.addEventListener('click', showNewFeedbackModal);
-  document.querySelector('[data-action="new-survey-modal"]')?.addEventListener('click', showSurveyModal);
-  document.querySelector('[data-action="copy-case-report"]')?.addEventListener('click', copyCaseReport);
+  // Ações de cabeçalho
+  document
+    .querySelector('[data-action="new-feedback"]')
+    ?.addEventListener("click", showNewFeedbackModal);
 
-  // Cenários rápidos
-  document.querySelectorAll('[data-open-case]').forEach(el => el.addEventListener('click', () => {
-    state.selectedCase = el.dataset.openCase;
-    saveState();
-    go('case');
-  }));
+  // Copiar parecer
+  document
+    .querySelector('[data-action="copy-case-report"]')
+    ?.addEventListener("click", copyCaseReport);
+
+  // Clique em linha de caso na tabela
+  document.querySelectorAll("[data-case]").forEach((el) =>
+    el.addEventListener("click", () => {
+      state.selectedCase = el.dataset.case;
+      saveState();
+      go("case");
+    })
+  );
 
   // Filtros de tabela
-  document.querySelectorAll('[data-filter]').forEach(el => el.addEventListener('change', () => {
-    filters[el.dataset.filter] = el.value;
-    render();
-  }));
+  document.querySelectorAll("[data-filter]").forEach((el) =>
+    el.addEventListener("change", () => {
+      filters[el.dataset.filter] = el.value;
+      render();
+    })
+  );
 
-  // Clique em linha de caso
-  document.querySelectorAll('[data-case]').forEach(el => el.addEventListener('click', () => {
-    state.selectedCase = el.dataset.case;
-    saveState();
-    go('case');
-  }));
+  // Busca em tempo real
+  const searchInput = document.querySelector("[data-filter-search]");
+  if (searchInput) {
+    searchInput.addEventListener("input", (e) => {
+      filters.search = e.target.value;
+      render();
+      const input = document.querySelector("[data-filter-search]");
+      if (input) {
+        input.focus();
+        input.setSelectionRange(input.value.length, input.value.length);
+      }
+    });
+  }
 
-  // Ações de caso
-  document.querySelectorAll('[data-ai]').forEach(el => el.addEventListener('click', () => handleAI(el.dataset.ai)));
-  document.querySelectorAll('[data-case-field]').forEach(el => el.addEventListener('change', () => updateCaseField(el.dataset.caseField, el.value)));
-  document.querySelector('[data-action="confirm-resolution"]')?.addEventListener('click', confirmResolution);
-  document.querySelectorAll('[data-verify]').forEach(el => el.addEventListener('click', () => verifyAction(el.dataset.verify)));
+  // Ações de apoio analítico (Decisão do Operador)
+  document.querySelectorAll("[data-ai]").forEach((el) =>
+    el.addEventListener("click", () => handleAI(el.dataset.ai))
+  );
+
+  // Atualização de campos de status e gravidade
+  document.querySelectorAll("[data-case-field]").forEach((el) =>
+    el.addEventListener("change", () =>
+      updateCaseField(el.dataset.caseField, el.value)
+    )
+  );
+
+  // Confirmar resolução com o beneficiário
+  document
+    .querySelector('[data-action="confirm-resolution"]')
+    ?.addEventListener("click", confirmResolution);
+
+  // Validar conclusão de ação no Kanban
+  document.querySelectorAll("[data-verify]").forEach((el) =>
+    el.addEventListener("click", () => verifyAction(el.dataset.verify))
+  );
 }
 
 function handleAI(action) {
-  const item = state.cases.find(x => x.id === state.selectedCase);
+  const item = state.cases.find((x) => x.id === state.selectedCase);
   if (!item) return;
-  if (action === 'validate' && !canValidateAI(item)) {
-    toast('A validação exige mais contexto.');
+
+  if (action === "validate" && !canValidateAI(item)) {
+    toast("A validação exige informações complementares.");
     return;
   }
-  item.aiStatus = action === 'validate' ? 'validated' : action === 'correct' ? 'corrected' : 'rejected';
-  item.history.push(action === 'validate' ? 'Sugestão analítica validada por uma pessoa' : action === 'correct' ? 'Sugestão corrigida por uma pessoa' : 'Sugestão analítica não utilizada');
+
+  item.aiStatus =
+    action === "validate"
+      ? "validated"
+      : action === "correct"
+      ? "corrected"
+      : "rejected";
+
+  item.history.push(
+    action === "validate"
+      ? "Classificação operacional validada pelo operador técnico"
+      : action === "correct"
+      ? "Classificação corrigida manualmente pelo operador técnico"
+      : "Sugestão analítica descartada pelo operador técnico"
+  );
+
   saveState();
-  toast('Decisão humana registrada no histórico.');
+  toast("Decisão técnica registrada no histórico do chamado.");
   render();
 }
 
 function updateCaseField(field, value) {
-  const item = state.cases.find(x => x.id === state.selectedCase);
+  const item = state.cases.find((x) => x.id === state.selectedCase);
   if (!item) return;
   item[field] = value;
-  item.history.push(`${field === 'status' ? 'Status' : 'Gravidade'} alterada para ${value}`);
+  item.history.push(
+    `${field === "status" ? "Status" : "Gravidade"} alterada para ${value} pelo operador`
+  );
   saveState();
-  toast('Caso atualizado com sucesso.');
+  toast("Chamado atualizado com sucesso.");
   render();
 }
 
 function confirmResolution() {
-  const item = state.cases.find(x => x.id === state.selectedCase);
+  const item = state.cases.find((x) => x.id === state.selectedCase);
   if (!item) return;
   item.resolvedConfirmed = true;
-  item.status = 'Resolvido';
-  item.history.push('Cliente confirmou que a solução atendeu à necessidade');
+  item.status = "Resolvido";
+  item.history.push("Beneficiário/cidadão confirmou formalmente a resolução da ocorrência");
   saveState();
-  toast('✓ Resolução confirmada pelo cliente e indicadores atualizados.');
+  toast("✓ Resolução confirmada pelo beneficiário. Indicadores de CSAT atualizados.");
   render();
 }
 
 function verifyAction(id) {
-  const action = state.actions.find(x => x.id === id);
+  const action = state.actions.find((x) => x.id === id);
   if (!action || !canVerifyAction(action)) {
-    toast('Inclua indicadores de experiência e de processo.');
+    toast("Ação precisa cumprir os requisitos de dupla validação.");
     return;
   }
-  action.status = 'Concluída';
+  action.status = "Concluída";
   saveState();
-  toast('✓ Ação de melhoria validada com sucesso.');
+  toast("✓ Ação de melhoria concluída e validada.");
   render();
 }
 
-function showResetModal() {
-  modalRoot.innerHTML = `
-    <div class="modal-backdrop">
-      <div class="modal" role="dialog" aria-modal="true">
-        <h2>Restaurar demonstração?</h2>
-        <p>Feedbacks, classificações, status e indicadores voltarão ao cenário inicial. Nenhum dado externo será afetado.</p>
-        <div class="modal-actions">
-          <button class="btn" data-modal-close>Cancelar</button>
-          <button class="btn btn-danger" data-reset-confirm>Restaurar Dados</button>
-        </div>
-      </div>
-    </div>`;
-  modalRoot.querySelector('[data-modal-close]').onclick = () => modalRoot.innerHTML = '';
-  modalRoot.querySelector('[data-reset-confirm]').onclick = () => {
-    state = cloneInitialState();
-    saveState();
-    filters = { channel:'Todos', severity:'Todas', status:'Todos' };
-    modalRoot.innerHTML = '';
-    currentView = selectedVersion === 'v2' ? 'feedbacks' : 'dashboard';
-    toast('Cenário inicial restaurado com sucesso.');
-    render();
-  };
-}
+// ==================== MODAL DE NOVA MANIFESTAÇÃO ====================
 
 function showNewFeedbackModal() {
   modalRoot.innerHTML = `
     <div class="modal-backdrop">
-      <form class="modal" id="quick-feedback" role="dialog" aria-modal="true">
-        <h2>Registrar feedback manual</h2>
-        <p>Use para contatos recebidos por telefone ou canais sem integração direta.</p>
-        <div class="form-grid">
-          <label>Cliente<input class="input" name="customer" placeholder="Nome do cliente" required></label>
-          <label>Canal
-            <select class="select input" name="channel">
-              <option>Telefone</option>
-              <option>WhatsApp</option>
-              <option>iFood</option>
-              <option>Saipos</option>
+      <form class="modal-card" id="quick-feedback" role="dialog" aria-modal="true">
+        <div class="modal-header">
+          <div>
+            <h3>Registrar Nova Manifestação</h3>
+            <p>Atendimento recebido via WhatsApp, balcão, totem ou ouvidoria</p>
+          </div>
+          <button type="button" class="modal-close-btn" data-modal-close aria-label="Fechar">✕</button>
+        </div>
+
+        <div class="modal-form-grid">
+          <label class="form-label">
+            <span>Nome do Beneficiário / Solicitante: *</span>
+            <input class="form-input" name="customer" placeholder="Ex: Maria Oliveira" required />
+          </label>
+
+          <label class="form-label">
+            <span>Polo ou Unidade Comunitária: *</span>
+            <select class="form-select" name="unit" required>
+              <option value="Polo Digital Norte">Polo Digital Norte</option>
+              <option value="Cooperativa Terra Viva">Cooperativa Terra Viva</option>
+              <option value="Cozinha Comunitária">Cozinha Comunitária</option>
+              <option value="Ateliê Comunitário">Ateliê Comunitário</option>
+              <option value="Restaurante Comunitário">Restaurante Comunitário</option>
             </select>
           </label>
-          <label class="full">Relato original
-            <textarea name="text" placeholder="Transcreva exatamente o que o cliente informou" required></textarea>
-          </label>
-          <label>Tema
-            <select class="select input" name="theme">
-              <option>Atendimento e comunicação</option>
-              <option>Tempo de entrega</option>
-              <option>Item ausente</option>
-              <option>Pagamento ou cobrança</option>
-              <option>Qualidade do produto</option>
-              <option>Outro</option>
+
+          <label class="form-label">
+            <span>Canal de Entrada:</span>
+            <select class="form-select" name="channel">
+              <option value="WhatsApp do Polo">WhatsApp do Polo</option>
+              <option value="Balcão / Polo">Balcão / Polo</option>
+              <option value="Ouvidoria Central">Ouvidoria Central</option>
+              <option value="Totem / QR Code">Totem / QR Code</option>
             </select>
           </label>
-          <label>Gravidade
-            <select class="select input" name="severity">
-              <option>Baixa</option>
-              <option>Moderada</option>
-              <option>Alta</option>
-              <option>Crítica</option>
+
+          <label class="form-label">
+            <span>Código do Serviço / Turma (opcional):</span>
+            <input class="form-input" name="serviceCode" placeholder="Ex: TI-4050 ou ALIM-2070" />
+          </label>
+
+          <label class="form-label full-width">
+            <span>Relato Original do Beneficiário: *</span>
+            <textarea
+              class="form-textarea"
+              name="text"
+              rows="3"
+              placeholder="Descreva exatamente o que foi informado pelo cidadão, sem resumos..."
+              required
+            ></textarea>
+          </label>
+
+          <label class="form-label">
+            <span>Tema Operacional:</span>
+            <select class="form-select" name="theme">
+              <option value="Atendimento e Comunicação">Atendimento e Comunicação</option>
+              <option value="Logística e Distribuição">Logística e Distribuição</option>
+              <option value="Segurança Nutricional e Alérgenos">Segurança Nutricional e Alérgenos</option>
+              <option value="Infraestrutura de TI">Infraestrutura de TI</option>
+              <option value="Conformidade MROSC e Finanças">Conformidade MROSC e Finanças</option>
+              <option value="Qualidade do Serviço">Qualidade do Serviço</option>
+              <option value="Acolhimento Comunitário">Acolhimento Comunitário</option>
+            </select>
+          </label>
+
+          <label class="form-label">
+            <span>Gravidade Inicial:</span>
+            <select class="form-select" name="severity">
+              <option value="Baixa">Baixa</option>
+              <option value="Moderada" selected>Moderada</option>
+              <option value="Alta">Alta</option>
+              <option value="Crítica">Crítica (Risco Sanitário/Interrupção)</option>
             </select>
           </label>
         </div>
-        <div class="modal-actions">
-          <button type="button" class="btn" data-modal-close>Cancelar</button>
+
+        <div class="modal-actions-bar">
+          <button type="button" class="btn btn-secondary" data-modal-close>Cancelar</button>
           <button class="btn btn-primary" type="submit">Registrar Chamado</button>
         </div>
       </form>
-    </div>`;
-  modalRoot.querySelector('[data-modal-close]').onclick = () => modalRoot.innerHTML = '';
-  modalRoot.querySelector('#quick-feedback').onsubmit = e => {
+    </div>
+  `;
+
+  modalRoot.querySelector("[data-modal-close]").onclick = () => {
+    modalRoot.innerHTML = "";
+  };
+
+  modalRoot.querySelector("#quick-feedback").onsubmit = (e) => {
     e.preventDefault();
     const f = new FormData(e.target);
-    const id = `ESC-${String(state.cases.length + 1).padStart(3, '0')}`;
+    const newId = `ESC-${String(state.cases.length + 101).padStart(3, "0")}`;
+    const severity = f.get("severity");
+
     state.cases.unshift({
-      id,
-      channel: f.get('channel'),
-      customer: f.get('customer'),
-      order: 'Registro manual',
+      id: newId,
+      channel: f.get("channel"),
+      customer: f.get("customer"),
+      unit: f.get("unit"),
+      serviceCode: f.get("serviceCode") || "GERAL",
       rating: null,
       nps: null,
-      text: f.get('text'),
-      type: 'A classificar',
-      theme: f.get('theme'),
-      severity: f.get('severity'),
-      status: 'Novo',
-      time: new Date().toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' }),
+      text: f.get("text"),
+      type: severity === "Crítica" ? "Incidente Crítico Sanitário" : "Manifestação Operacional",
+      theme: f.get("theme"),
+      severity: severity,
+      status: "Novo",
+      time: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
       responseMinutes: 0,
       resolvedConfirmed: false,
       duplicateOf: null,
-      critical: f.get('severity') === 'Crítica',
-      aiConfidence: 68,
-      aiStatus: 'pending',
-      operational: { confirmation:0, production:0, courierWait:0, route:0, concurrent:0 },
-      history: ['Feedback registrado manualmente', 'Aguardando validação humana']
+      critical: severity === "Crítica",
+      aiConfidence: 75,
+      aiStatus: "pending",
+      operational: {
+        triage: 5,
+        serviceWait: 15,
+        resolution: 0,
+        concurrent: 25,
+      },
+      history: [
+        "Manifestação registrada manualmente pela equipe de atendimento",
+        "Aguardando conferência e validação técnica do operador",
+      ],
     });
+
     saveState();
-    modalRoot.innerHTML = '';
-    toast(`Chamado ${id} registrado com sucesso.`);
-    go('feedbacks');
+    modalRoot.innerHTML = "";
+    toast(`✓ Chamado ${newId} registrado com sucesso na fila.`);
+    go("feedbacks");
   };
 }
 
-function showSurveyModal() {
-  modalRoot.innerHTML = `
-    <div class="modal-backdrop">
-      <form class="modal" id="modal-survey" role="dialog" aria-modal="true" style="max-width: 520px;">
-        <h2>Simulação: Tela do Cliente</h2>
-        <p>Avaliação rápida do pedido (visão do cliente final).</p>
-        <div class="form-grid">
-          <label>Número do pedido<input class="input" name="order" placeholder="Ex.: PH-1065" required></label>
-          <label>Canal
-            <select class="select input" name="channel" required>
-              <option>WhatsApp</option>
-              <option>iFood</option>
-              <option>Saipos</option>
-              <option>Telefone</option>
-            </select>
-          </label>
-          <div class="full">
-            <span class="metric-label">Nota de Satisfação (1 a 5) *</span>
-            <div class="rating modal-rating" style="margin-top: 6px;">
-              ${[1,2,3,4,5].map(n=>`<button type="button" data-modal-rating="${n}" class="${surveyRating===n?'selected':''}">${n}</button>`).join('')}
-            </div>
-          </div>
-          <label class="full">Motivo principal
-            <select class="select input" name="theme" required>
-              <option value="">Selecione o motivo</option>
-              <option>Tempo de entrega</option>
-              <option>Atendimento e comunicação</option>
-              <option>Item ausente</option>
-              <option>Qualidade do produto</option>
-              <option>Pagamento ou cobrança</option>
-            </select>
-          </label>
-          <label class="full">O que aconteceu?
-            <textarea name="text" placeholder="Descreva sua experiência com o pedido" required></textarea>
-          </label>
-        </div>
-        <div class="modal-actions">
-          <button type="button" class="btn" data-modal-close>Cancelar</button>
-          <button class="btn btn-primary" type="submit">Enviar Avaliação</button>
-        </div>
-      </form>
-    </div>`;
-  
-  modalRoot.querySelector('[data-modal-close]').onclick = () => { modalRoot.innerHTML = ''; surveyRating = 0; };
-  modalRoot.querySelectorAll('[data-modal-rating]').forEach(btn => btn.onclick = () => {
-    surveyRating = Number(btn.dataset.modalRating);
-    modalRoot.querySelectorAll('[data-modal-rating]').forEach(b => b.classList.toggle('selected', b === btn));
-  });
-
-  modalRoot.querySelector('#modal-survey').onsubmit = e => {
-    e.preventDefault();
-    if (!surveyRating) {
-      toast('Selecione uma nota de satisfação de 1 a 5.');
-      return;
-    }
-    const f = new FormData(e.target);
-    const id = `ESC-${String(state.cases.length + 1).padStart(3, '0')}`;
-    state.cases.unshift({
-      id,
-      channel: f.get('channel'),
-      customer: 'Cliente da Loja',
-      order: f.get('order'),
-      rating: surveyRating,
-      nps: null,
-      text: f.get('text'),
-      type: 'A classificar',
-      theme: f.get('theme'),
-      severity: surveyRating <= 2 ? 'Alta' : 'Moderada',
-      status: 'Novo',
-      time: new Date().toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' }),
-      responseMinutes: 0,
-      resolvedConfirmed: false,
-      duplicateOf: null,
-      critical: false,
-      aiConfidence: 78,
-      aiStatus: 'pending',
-      operational: { confirmation: 5, production: 38, courierWait: 12, route: 10, concurrent: 28 },
-      history: ['Avaliação enviada pelo cliente', 'Aguardando validação analítica']
-    });
-    saveState();
-    surveyRating = 0;
-    modalRoot.innerHTML = '';
-    toast(`✓ Avaliação ${id} registrada com sucesso.`);
-    go('feedbacks');
-  };
-}
-
+// Inicialização
 render();
