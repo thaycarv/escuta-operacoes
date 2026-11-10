@@ -21,44 +21,33 @@ Manifestações de beneficiários de programas comunitários chegam fragmentadas
 
 ---
 
-## 🧭 Arquitetura Baseada em Benchmarks Reais (Fala.BR & Closed-Loop VoC)
+## 🧭 Arquitetura Baseada em Benchmarks Reais (Fala.BR, Movidesk & Zendesk)
 
-O sistema foi desenhado com base nas melhores práticas de **Ouvidorias Públicas (Plataforma Fala.BR / CGU)** e plataformas corporativas de **Voice of the Customer (Zendesk, Medallia, Qualtrics)**, operando em duas esteiras integradas de **Closed-Loop Feedback**:
+O sistema foi redesenhado e simplificado para refletir a rotina real de coordenações operacionais e ouvidorias públicas (Plataforma Fala.BR / CGU, Movidesk e Zendesk), eliminando elementos artificiais (como barras de confiança de IA e calibradores de modelo) em favor de duas esteiras diretas:
 
-### 1. Inner Loop (Resolução com o Cidadão / Atendimento Direto)
-* **Tipologia Padronizada (Padrão Fala.BR):** Classificação rigorosa em **Reclamação**, **Solicitação**, **Sugestão**, **Elogio** e **Incidente Crítico**;
-* **Confronto com Indicadores de Operação:** Comparação em tempo real do relato do cidadão com os tempos reais de triagem, espera no polo e carga concorrente de pessoas, distinguindo gargalos físicos de falhas pontuais de comunicação;
-* **Supervisão Humana (Human-in-the-Loop):** Apoio analítico determinístico com validação obrigatória do analista;
-* **Fechamento Formal do Ciclo:** O chamado só é considerado resolvido após confirmação do cidadão, retroalimentando as métricas de CSAT e tempo de resposta.
+### 1. Fila de Manifestações dos Polos (Atendimento & Contenção Imediata)
+* **Tipologia Fala.BR:** Classificação em **Reclamação**, **Solicitação**, **Sugestão**, **Elogio** e **Incidente Crítico**;
+* **Confronto com a Realidade de Campo:** Relato original do beneficiário acompanhado do histórico operacional da unidade (ex: oscilação de link 4G de contingência, fila no balcão presencial, vistorias sanitárias de cozinhas conforme Anvisa RDC nº 727/2022);
+* **Tratativa Operacional:** Registro de ação de contenção imediata, custo de apoio emergencial (quando aplicável) e comunicação oficial via WhatsApp/e-mail;
+* **Indicadores Executivos:** Indicadores de volume por prioridade (Alta, Média, Baixa), tempo médio de resposta e índice de resolução.
 
-### 2. Outer Loop (Melhoria Contínua de Processos / Causa Raiz)
-* **Diagnóstico Agregado:** Histograma de frequência por tema nos últimos 30 dias e identificação das causas raízes crônicas;
-* **Kanban PDCA com Dupla Validação:** Cada plano de ação exige simultaneamente um indicador de percepção do usuário (CSAT, redução de manifestações) e um indicador de eficiência de processo (tempo de espera, conformidade de fichas técnicas);
-* **Painel Comparativo Antes vs. Depois:** Mensuração objetiva dos ganhos de capacidade e qualidade após a intervenção.
+### 2. Causa Raiz & Planos de Ação (PDCA Comunitário)
+* **Visão Agregada de Gargalos:** Distribuição das manifestações por temas críticos (Infraestrutura & Conectividade, Alimentação & Segurança Nutricional, Logística de Oficinas, Suporte a Bolsas & Projetos);
+* **Quadro PDCA de Ações Corretivas:** Ações estruturais em 4 estágios (*Planejada*, *Em andamento*, *Verificação* e *Concluída*);
+* **Dupla Validação de Eficácia:** Cada melhoria tem meta de percepção comunitária (redução de chamados) e meta operacional mensurável (tempo de ciclo ou conformidade técnica).
 
 ---
 
-## 🧭 As Quatro Visões do Sistema
+## 🧭 As Duas Visões Operacionais do Sistema
 
 1. **Central de Manifestações dos Polos:**
-   * Tabela gerencial filtrável por unidade, tipo de manifestação (Fala.BR), canal, gravidade e status, com busca em tempo real;
-   * Indicadores de desempenho em tempo real: CSAT, NPS, tempo médio de primeira resposta e taxa de resolução confirmada pelo cidadão;
-   * Botão de registro manual de ocorrências com histórico auditável.
+   * Tabela gerencial com filtros por Polo (Norte, Centro, Sul, Leste), Categoria, Prioridade e Status;
+   * Painel de detalhes com 3 blocos diretos: (1) Relato do Cidadão, (2) Diagnóstico Operacional & Ação Imediata de Contenção, (3) Resolução e Custo de Apoio;
+   * Modal para abertura rápida de novas ocorrências via balcão presencial ou WhatsApp.
 
-2. **Investigação do Caso & Confronto de Processo:**
-   * **Relato Original:** Preservação integral das palavras do usuário sem filtros de IA que distorçam o contexto;
-   * **Confronto com Dados Reais:** Comparação do relato com tempos de triagem inicial, espera no polo e resolução técnica, além da carga concorrente de pessoas no horário;
-   * **Apoio Analítico com Supervisão Humana:** Sugestão de tema e gravidade com barra de confiança analítica, exigindo validação explícita do operador;
-   * **Parecer do Chamado em 1 Clique:** Exportação estruturada pronta para envio por WhatsApp, e-mail institucional ou registro em chamado.
-
-3. **Diagnóstico & Causa Raiz:**
-   * Histograma de frequência por tema reclamado nos últimos 30 dias;
-   * Identificação de causas recorrentes (saturação em horários de pico, comunicação reativa);
-   * Comparativo antes vs. depois comprovando o ganho de eficiência após as correções.
-
-4. **Planos de Melhoria Contínua (PDCA & VoC):**
-   * Quadro Kanban de ações em 4 estágios: *Planejada*, *Em andamento*, *Verificação* e *Concluída*;
-   * **Metodologia de Dupla Validação:** Toda ação só é considerada concluída se atingir simultaneamente um indicador de percepção do cidadão (CSAT, redução de queixas) e um indicador de processo operacional interno (tempo de ciclo, conformidade de rotulagem).
+2. **Causa Raiz & Planos de Ação:**
+   * Diagnóstico visual das causas crônicas que sobrecarregam as equipes de campo;
+   * Acompanhamento dos planos de melhoria contínua (ex: roteador 4G de redundância para polos digitais, revisão de fichas de preparo nas cozinhas comunitárias, oficinas de orçamentação e 3 cotações).
 
 ---
 
