@@ -1,4 +1,4 @@
-// RadarSocial Escuta — Ouvidoria Ativa & Gestão da Voz do Beneficiário (VoC/VoB)
+// RadarSocial Escuta: Ouvidoria Ativa & Gestão da Voz do Beneficiário (VoC/VoB)
 // Módulo Integrado ao Ecossistema RadarSocial
 // Coordenação Técnica: Thayâne Carvalho (Engenharia de Produção & Nutrição)
 

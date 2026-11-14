@@ -58,5 +58,5 @@ Todo Pull Request aberto deve conter obrigatoriamente as seguintes 4 seções de
 
 ## 4. 🛡️ Critérios de Aceite & Governança Ética
 * **Preservação do Relato**: O relato original do cliente nunca deve ser descaracterizado ou resumido de forma a perder seu contexto.
-* **Supervisão Humana (*Human-in-the-loop*)**: Sugestões analíticas da IA exigem validação humana antes de alterar status ou planos de ação.
+* **Supervisão Humana**: Sugestões analíticas da IA exigem validação humana antes de alterar status ou planos de ação.
 * **Foco em Processos**: Diagnósticos devem orientar soluções para tempos de preparo, rota e logística, sem atribuições punitivas individuais.
