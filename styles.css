@@ -1,4 +1,4 @@
-/* RadarSocial Escuta — Design System Slate Mineral & Deep Forest */
+/* RadarSocial Escuta: Design System Slate Mineral & Deep Forest */
 
 :root {
   --bg: #f8fafc;
@@ -1257,5 +1257,16 @@ button {
   .filters-toolbar {
     flex-direction: column;
     align-items: stretch;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

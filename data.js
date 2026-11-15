@@ -177,7 +177,7 @@ export const initialCases = [
     status: "Aberto",
     time: "11:55",
     responseMinutes: 2,
-    rootCause: "Dúvida crítica de segurança alimentar e rotulagem preventiva (Anvisa RDC 727 / RDC 26).",
+    rootCause: "Dúvida crítica de segurança alimentar e rotulagem preventiva (Anvisa RDC 727/2022 e RDC 216/2004).",
     immediateAction: "Contato telefônico imediato da Nutricionista confirmando ficha técnica sem risco de alérgenos.",
     contingencyCost: 0.00,
     history: [
