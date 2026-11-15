@@ -815,5 +815,18 @@ function render() {
   bindEvents();
 }
 
-// Inicialização
-render();
+// Inicialização com proteção contra falhas de renderização
+try {
+  render();
+} catch (err) {
+  console.error("Erro ao inicializar o painel:", err);
+  if (app) {
+    app.innerHTML = `
+      <div style="max-width:520px;margin:64px auto;padding:24px;background:#fff;border:1px solid #e2e8f0;border-radius:12px;font-family:Inter,sans-serif;color:#0f172a;">
+        <h2 style="margin:0 0 8px;font-size:16px;">Não foi possível carregar o painel</h2>
+        <p style="margin:0 0 16px;font-size:13px;color:#475569;">Ocorreu uma falha inesperada na inicialização dos dados locais.</p>
+        <button type="button" onclick="sessionStorage.clear();location.reload();" style="padding:8px 14px;border-radius:8px;border:1px solid #cbd5e1;background:#0f172a;color:#fff;font-size:13px;cursor:pointer;">Restaurar e recarregar</button>
+      </div>
+    `;
+  }
+}
