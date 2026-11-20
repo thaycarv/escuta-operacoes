@@ -8,6 +8,6 @@ Este repositório segue um fluxo simples e rastreável para alterações de cód
 3. Abra um **Pull Request** preenchendo `.github/PULL_REQUEST_TEMPLATE.md` e vinculando a Issue (`Resolve #N`).
 
 ## Qualidade e Interface
-* Mantenha português do Brasil claro e sem travessões (`—` ou `–`) nos textos.
+* Mantenha português do Brasil claro e sem travessões nos textos.
 * Preserve suporte a `@media (prefers-reduced-motion: reduce)` em animações CSS e mantenha carregamento instantâneo sem skeletons artificiais.
 * Garanta que a verificação de sintaxe e integridade no GitHub Actions passe antes do merge.
